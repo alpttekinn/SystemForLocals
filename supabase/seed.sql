@@ -8,7 +8,7 @@
 -- =============================================================================
 
 -- Use a fixed UUID for the demo tenant so seed is idempotent
-DO $$
+DO $seed$
 DECLARE
   v_tenant_id UUID := '00000000-0000-0000-0000-000000000001';
 BEGIN
@@ -226,13 +226,13 @@ INSERT INTO testimonials (tenant_id, reviewer_name, rating, quote, source, is_fe
     FALSE, TRUE, 4
   );
 
-END $$;
+END $seed$;
 
 -- =============================================================================
 -- SECOND DEMO TENANT: Mavi Deniz Cafe
 -- (Proves multi-tenant isolation — different theme, different content)
 -- =============================================================================
-DO $$
+DO $seed$
 DECLARE
   v2_tenant_id UUID := '00000000-0000-0000-0000-000000000002';
 BEGIN
@@ -355,4 +355,4 @@ INSERT INTO testimonials (tenant_id, reviewer_name, rating, quote, source, is_fe
   (v2_tenant_id, 'Can T.', 5, 'Antalya''da en iyi restoran deneyimlerinden biri.', 'TripAdvisor', FALSE, TRUE, 3)
 ON CONFLICT DO NOTHING;
 
-END $$;
+END $seed$;

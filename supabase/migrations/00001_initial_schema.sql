@@ -12,45 +12,49 @@
 --   UUIDs:       All PKs are gen_random_uuid().
 -- =============================================================================
 
--- Helper function: check if current user is an admin
-CREATE OR REPLACE FUNCTION is_admin()
-RETURNS BOOLEAN
-LANGUAGE sql
-SECURITY DEFINER
-STABLE
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM profiles
-    WHERE id = auth.uid()
-      AND role IN ('super_admin', 'admin')
-  );
-$$;
-
--- Helper function: check if current user is a super admin
-CREATE OR REPLACE FUNCTION is_super_admin()
-RETURNS BOOLEAN
-LANGUAGE sql
-SECURITY DEFINER
-STABLE
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM profiles
-    WHERE id = auth.uid()
-      AND role = 'super_admin'
-  );
-$$;
-
 
 -- =============================================================================
--- 1. PROFILES (extends Supabase Auth)
+-- 1. PROFILES (extends Supabase Auth) — must come first for function refs
 -- =============================================================================
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
   id          UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name   TEXT NOT NULL,
   role        TEXT NOT NULL DEFAULT 'admin'
               CHECK (role IN ('super_admin', 'admin')),
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Helper function: check if current user is an admin
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+STABLE
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM profiles
+    WHERE id = auth.uid()
+      AND role IN ('super_admin', 'admin')
+  );
+END;
+$$;
+
+-- Helper function: check if current user is a super admin
+CREATE OR REPLACE FUNCTION is_super_admin()
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+STABLE
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM profiles
+    WHERE id = auth.uid()
+      AND role = 'super_admin'
+  );
+END;
+$$;
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
@@ -469,7 +473,7 @@ CREATE POLICY "Admins can update event inquiries"
 -- =============================================================================
 -- 15. NOTIFICATION LOGS
 -- =============================================================================
-CREATE TABLE notification_logs (
+CREATE TABLE notification_log (
   id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   reservation_id       UUID REFERENCES reservations(id) ON DELETE SET NULL,
   event_inquiry_id     UUID REFERENCES event_inquiries(id) ON DELETE SET NULL,
@@ -485,16 +489,16 @@ CREATE TABLE notification_logs (
   created_at           TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_notification_logs_reservation
-  ON notification_logs(reservation_id);
+CREATE INDEX idx_notification_log_reservation
+  ON notification_log(reservation_id);
 
-CREATE INDEX idx_notification_logs_event
-  ON notification_logs(event_inquiry_id);
+CREATE INDEX idx_notification_log_event
+  ON notification_log(event_inquiry_id);
 
-ALTER TABLE notification_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_log ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Admins can read notification logs"
-  ON notification_logs FOR SELECT
+  ON notification_log FOR SELECT
   USING (is_admin());
 
 -- Service role handles INSERT.
