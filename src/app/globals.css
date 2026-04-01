@@ -1,0 +1,264 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================================================
+   CafePanel — Multi-Tenant Design System Foundation
+   
+   Brand direction per tenant: configurable via CSS custom properties.
+   Static design tokens (forest, burgundy, etc.) used for admin/platform chrome.
+   Dynamic brand-* tokens injected at runtime from tenant config.
+   ============================================================================= */
+
+@layer base {
+  /* Default brand CSS variables (forest preset fallback) */
+  :root {
+    --brand-primary: #264d26;
+    --brand-primary-light: #357a35;
+    --brand-primary-dark: #1a2e1a;
+    --brand-secondary: #6b1d34;
+    --brand-secondary-light: #8b2545;
+    --brand-accent: #b8960c;
+    --brand-accent-light: #d4b44a;
+    --brand-bg: #fdfbf7;
+    --brand-surface: #faf6f0;
+    --brand-surface-alt: #f0e8d8;
+    --brand-text: #1a1a1a;
+    --brand-text-muted: #4a4a4a;
+    --brand-btn-radius: 8px;
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
+  }
+
+  body {
+    background-color: var(--brand-bg);
+    @apply text-charcoal-900 font-sans;
+  }
+
+  h1, h2, h3 {
+    @apply font-serif;
+  }
+
+  /* Selection color matching brand */
+  ::selection {
+    @apply bg-forest-200 text-forest-950;
+  }
+
+  /* Focus ring consistency */
+  :focus-visible {
+    @apply outline-none ring-2 ring-forest-600 ring-offset-2;
+  }
+}
+
+@layer components {
+  /* ----- Section rhythm ----- */
+  .section-padding {
+    @apply py-12 md:py-20;
+  }
+
+  .section-padding-sm {
+    @apply py-8 md:py-12;
+  }
+
+  /* ----- Typography presets ----- */
+  .text-display {
+    @apply font-serif text-4xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight;
+  }
+
+  .text-heading {
+    @apply font-serif text-3xl md:text-4xl lg:text-5xl font-bold leading-tight;
+  }
+
+  .text-section-heading {
+    @apply font-serif text-2xl md:text-3xl font-semibold leading-snug;
+  }
+
+  .text-sub-heading {
+    @apply font-sans text-xl md:text-2xl font-semibold;
+  }
+
+  .text-body-lg {
+    @apply font-sans text-lg leading-relaxed;
+  }
+
+  .text-body {
+    @apply font-sans text-base leading-relaxed;
+  }
+
+  .text-small {
+    @apply font-sans text-sm leading-normal;
+  }
+
+  .text-caption {
+    @apply font-sans text-xs leading-normal tracking-wide uppercase;
+  }
+
+  /* ----- Film-strip decorative divider ----- */
+  .film-strip-divider {
+    @apply relative w-full h-6 overflow-hidden opacity-20;
+    background-image:
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 8px,
+        theme('colors.burgundy.900') 8px,
+        theme('colors.burgundy.900') 10px
+      );
+    mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  }
+
+  .film-strip-divider::before,
+  .film-strip-divider::after {
+    content: '';
+    @apply absolute top-0 bottom-0 w-full;
+    background-image:
+      repeating-linear-gradient(
+        90deg,
+        theme('colors.burgundy.900') 0px,
+        theme('colors.burgundy.900') 6px,
+        transparent 6px,
+        transparent 14px
+      );
+  }
+
+  .film-strip-divider::before {
+    @apply h-1.5 top-0;
+  }
+
+  .film-strip-divider::after {
+    @apply h-1.5 bottom-0 top-auto;
+  }
+
+  /* ----- Thin gold line divider (simpler alternative) ----- */
+  .gold-divider {
+    @apply w-24 h-px bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto;
+  }
+
+  /* ----- Film grain overlay ----- */
+  .film-grain {
+    @apply pointer-events-none fixed inset-0 z-50;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* ----- Cinematic vignette for images ----- */
+  .vignette {
+    @apply relative;
+  }
+
+  .vignette::after {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.3) 100%);
+  }
+
+  /* ----- Warm image filter (subtle sepia warmth) ----- */
+  .image-warm {
+    filter: saturate(1.05) contrast(1.02) sepia(0.08);
+  }
+
+  /* ----- Cinematic hero overlay ----- */
+  .hero-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(26, 46, 26, 0.7) 0%,
+      rgba(26, 46, 26, 0.4) 40%,
+      rgba(26, 46, 26, 0.6) 100%
+    );
+  }
+
+  /* ----- Star trio decoration (from logo) ----- */
+  .star-decoration::before {
+    content: '★ ★ ★';
+    @apply text-gold-500 text-xs tracking-[0.5em] block text-center;
+  }
+
+  /* ----- Smooth card hover ----- */
+  .card-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .card-hover:hover {
+    @apply -translate-y-1 shadow-card-hover;
+  }
+
+  /* ----- Admin layout helpers ----- */
+  .admin-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .admin-page-header {
+    @apply mb-6 md:mb-8;
+  }
+
+  .admin-page-title {
+    @apply text-2xl font-serif font-bold text-charcoal-900;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar but allow scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Aspect ratio for image containers */
+  .aspect-menu-item {
+    aspect-ratio: 4 / 3;
+  }
+
+  .aspect-gallery {
+    aspect-ratio: 3 / 2;
+  }
+
+  .aspect-hero {
+    aspect-ratio: 16 / 9;
+  }
+
+  .aspect-campaign {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+/* =============================================================================
+   Scroll-reveal animations (CSS-only, activated via IntersectionObserver)
+   Add .reveal to any element → starts invisible, fades-in + slides-up on scroll.
+   Stagger children: add .reveal-stagger to parent, .reveal to children.
+   ============================================================================= */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered reveals for grid children */
+.reveal-stagger > .reveal:nth-child(1) { transition-delay: 0s; }
+.reveal-stagger > .reveal:nth-child(2) { transition-delay: 0.1s; }
+.reveal-stagger > .reveal:nth-child(3) { transition-delay: 0.2s; }
+.reveal-stagger > .reveal:nth-child(4) { transition-delay: 0.3s; }
+.reveal-stagger > .reveal:nth-child(5) { transition-delay: 0.4s; }
+.reveal-stagger > .reveal:nth-child(6) { transition-delay: 0.5s; }
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

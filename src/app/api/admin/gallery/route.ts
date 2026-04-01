@@ -1,0 +1,138 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { requireAdmin, isAdminError } from '@/lib/api/admin-guard'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { galleryItemSchema } from '@/lib/validations'
+
+/**
+ * GET /api/admin/gallery — get all gallery items (including hidden).
+ */
+export async function GET(request: NextRequest) {
+  const auth = await requireAdmin(request)
+  if (isAdminError(auth)) return auth
+
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('gallery')
+    .select('*')
+    .eq('tenant_id', auth.tenantId)
+    .order('sort_order')
+
+  return NextResponse.json({ items: data || [] })
+}
+
+/**
+ * POST /api/admin/gallery — add gallery item.
+ */
+export async function POST(request: NextRequest) {
+  const auth = await requireAdmin(request)
+  if (isAdminError(auth)) return auth
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Geçersiz JSON' }, { status: 400 })
+  }
+
+  const parsed = galleryItemSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Doğrulama hatası', details: parsed.error.flatten().fieldErrors }, { status: 422 })
+  }
+
+  const supabase = createAdminClient()
+
+  // If is_cover, unset other covers first
+  if (parsed.data.is_cover) {
+    await supabase
+      .from('gallery')
+      .update({ is_cover: false })
+      .eq('tenant_id', auth.tenantId)
+      .eq('is_cover', true)
+  }
+
+  const { data, error } = await supabase
+    .from('gallery')
+    .insert({ tenant_id: auth.tenantId, ...parsed.data })
+    .select('id')
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ id: data!.id }, { status: 201 })
+}
+
+/**
+ * PATCH /api/admin/gallery — update gallery item.
+ * Body: { id: string, ...fields }
+ */
+export async function PATCH(request: NextRequest) {
+  const auth = await requireAdmin(request)
+  if (isAdminError(auth)) return auth
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Geçersiz JSON' }, { status: 400 })
+  }
+
+  const { id, ...fields } = body as { id?: string; [key: string]: unknown }
+  if (!id) {
+    return NextResponse.json({ error: 'id gereklidir' }, { status: 400 })
+  }
+
+  const parsed = galleryItemSchema.partial().safeParse(fields)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Doğrulama hatası', details: parsed.error.flatten().fieldErrors }, { status: 422 })
+  }
+
+  const supabase = createAdminClient()
+
+  // If setting is_cover, unset other covers
+  if (parsed.data.is_cover) {
+    await supabase
+      .from('gallery')
+      .update({ is_cover: false })
+      .eq('tenant_id', auth.tenantId)
+      .eq('is_cover', true)
+  }
+
+  const { error } = await supabase
+    .from('gallery')
+    .update(parsed.data)
+    .eq('id', id)
+    .eq('tenant_id', auth.tenantId)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
+
+/**
+ * DELETE /api/admin/gallery — delete gallery item.
+ * Body: { id: string }
+ */
+export async function DELETE(request: NextRequest) {
+  const auth = await requireAdmin(request)
+  if (isAdminError(auth)) return auth
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Geçersiz JSON' }, { status: 400 })
+  }
+
+  const { id } = body as { id?: string }
+  if (!id) {
+    return NextResponse.json({ error: 'id gereklidir' }, { status: 400 })
+  }
+
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('gallery')
+    .delete()
+    .eq('id', id)
+    .eq('tenant_id', auth.tenantId)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
