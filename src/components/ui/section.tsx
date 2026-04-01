@@ -27,9 +27,9 @@ interface SectionHeaderProps {
 function SectionHeader({ title, subtitle, centered = true, className }: SectionHeaderProps) {
   return (
     <div className={cn('mb-8 md:mb-12', centered && 'text-center', className)}>
-      <h2 className="text-section-heading text-charcoal-900">{title}</h2>
+      <h2 className="text-section-heading text-brand-text">{title}</h2>
       {subtitle && (
-        <p className="mt-3 text-body-lg text-charcoal-600 max-w-2xl mx-auto">{subtitle}</p>
+        <p className="mt-3 text-body-lg text-brand-text-muted max-w-2xl mx-auto">{subtitle}</p>
       )}
       <div className="gold-divider mt-4" />
     </div>

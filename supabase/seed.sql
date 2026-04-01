@@ -46,9 +46,9 @@ INSERT INTO tenant_branding (
   'classic',
   'rounded',
   'Yeşilçam Nostaljisi Çekmeköy''de',
-  'Çekmeköy''ün kalbinde, Yeşilçam nostaljisiyle harmanlanan sıcak bir kafe ve restoran deneyimi.',
+  'Çekmeköy''ün kalbinde, Yeşilçam sinemasının sıcaklığını yaşatan kafe ve restoran. Özenle hazırlanan lezzetler, sinematik atmosfer ve unutulmaz anlar.',
   'Yeşilçam Nostaljisi Çekmeköy''de',
-  'Sıcak bir atmosferde, unutulmaz lezzetler ve sinema nostaljisiyle dolu anlar sizi bekliyor.',
+  'Sıcak bir atmosferde, özenle hazırlanan lezzetler ve sinema nostaljisiyle dolu bir deneyim sizi bekliyor.',
   'Rezervasyon Yap',
   '© Yeşilçam Çekmeköy. Tüm hakları saklıdır.'
 )
@@ -143,16 +143,177 @@ ON CONFLICT (tenant_id, day_of_week) DO NOTHING;
 -- 9. MENU CATEGORIES
 -- =========================
 INSERT INTO menu_categories (tenant_id, name, slug, sort_order, is_visible) VALUES
-  (v_tenant_id, 'Soğuk İçecekler', 'soguk-icecekler',  1, TRUE),
-  (v_tenant_id, 'Kahveler',         'kahveler',          2, TRUE),
-  (v_tenant_id, 'Salatalar',        'salatalar',         3, TRUE),
+  (v_tenant_id, 'Kahvaltı',         'kahvalti',          1, TRUE),
+  (v_tenant_id, 'Başlangıçlar',     'baslangiclar',      2, TRUE),
+  (v_tenant_id, 'Ana Yemekler',     'ana-yemekler',      3, TRUE),
   (v_tenant_id, 'Pizzalar',         'pizzalar',          4, TRUE),
-  (v_tenant_id, 'Sıcak İçecekler',  'sicak-icecekler',   5, TRUE),
-  (v_tenant_id, 'Kahvaltı',         'kahvalti',          6, TRUE),
-  (v_tenant_id, 'Tatlılar',         'tatlilar',          7, TRUE),
-  (v_tenant_id, 'Ana Yemekler',     'ana-yemekler',      8, TRUE),
-  (v_tenant_id, 'Başlangıçlar',     'baslangiclar',      9, TRUE)
+  (v_tenant_id, 'Salatalar',        'salatalar',         5, TRUE),
+  (v_tenant_id, 'Kahveler',         'kahveler',          6, TRUE),
+  (v_tenant_id, 'Soğuk İçecekler',  'soguk-icecekler',   7, TRUE),
+  (v_tenant_id, 'Sıcak İçecekler',  'sicak-icecekler',   8, TRUE),
+  (v_tenant_id, 'Tatlılar',         'tatlilar',          9, TRUE)
 ON CONFLICT (tenant_id, slug) DO NOTHING;
+
+-- =========================
+-- 9b. MENU ITEMS (Yeşilçam demo content)
+-- =========================
+
+-- Kahvaltı
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
+FROM menu_categories c,
+(VALUES
+  ('Serpme Kahvaltı', 'Zengin tabağıyla 2 kişilik geleneksel serpme kahvaltı. Taze peynirler, reçeller, bal-kaymak ve sınırsız çay.', 450, 1, TRUE),
+  ('Yeşilçam Kahvaltı Tabağı', 'Sucuklu yumurta, beyaz peynir, domates, zeytin, tereyağı, bal ve taze ekmek.', 220, 2, FALSE),
+  ('Menemen', 'Geleneksel tarifle hazırlanan domates, biber ve yumurta karışımı.', 140, 3, FALSE),
+  ('Açma & Poğaça Tabağı', 'Günlük taze açma ve peynirli poğaça, tereyağı ve reçel eşliğinde.', 120, 4, FALSE)
+) AS v(name, description, price, sort_order, is_featured)
+WHERE c.tenant_id = v_tenant_id AND c.slug = 'kahvalti'
+ON CONFLICT DO NOTHING;
+
+-- Başlangıçlar
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
+FROM menu_categories c,
+(VALUES
+  ('Humus', 'Tahin, limon ve zeytinyağıyla servis edilen klasik humus.', 90, 1, FALSE),
+  ('Sigara Böreği', 'Çıtır yufka içinde beyaz peynir. 4 adet.', 100, 2, FALSE),
+  ('Çıtır Kalamar', 'Taze kalamar halkası, tartar sos eşliğinde.', 140, 3, TRUE),
+  ('Mantar Sote', 'Tereyağında sote edilmiş karışık mantar, sarımsak ve maydanoz.', 110, 4, FALSE)
+) AS v(name, description, price, sort_order, is_featured)
+WHERE c.tenant_id = v_tenant_id AND c.slug = 'baslangiclar'
+ON CONFLICT DO NOTHING;
+
+-- Ana Yemekler
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
+FROM menu_categories c,
+(VALUES
+  ('Bonfile', 'Izgara dana bonfile, fırın patates ve mevsim sebzeleri ile.', 380, 1, TRUE),
+  ('Tavuk Pirzola', 'Marine edilmiş tavuk pirzola, pilav ve ızgara sebze.', 260, 2, FALSE),
+  ('Köfte Tabağı', 'El yapımı köfte, pilav, közlenmiş biber ve domates.', 220, 3, FALSE),
+  ('Levrek Izgara', 'Günlük taze levrek, roka salatası eşliğinde.', 320, 4, TRUE)
+) AS v(name, description, price, sort_order, is_featured)
+WHERE c.tenant_id = v_tenant_id AND c.slug = 'ana-yemekler'
+ON CONFLICT DO NOTHING;
+
+-- Pizzalar
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
+FROM menu_categories c,
+(VALUES
+  ('Karışık Pizza', 'Sucuk, mantar, mısır, zeytin, biber ve mozzarella.', 200, 1, TRUE),
+  ('Margarita', 'Taze domates sos, mozzarella ve fesleğen.', 160, 2, FALSE),
+  ('Yeşilçam Special', 'Kavrulmuş tavuk, karamelize soğan, roka ve parmesan.', 220, 3, TRUE),
+  ('Sucuklu Pizza', 'Bol sucuklu, mozzarella ve taze soğan.', 190, 4, FALSE)
+) AS v(name, description, price, sort_order, is_featured)
+WHERE c.tenant_id = v_tenant_id AND c.slug = 'pizzalar'
+ON CONFLICT DO NOTHING;
+
+-- Salatalar
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
+FROM menu_categories c,
+(VALUES
+  ('Sezar Salata', 'Marul, kruton, parmesan ve sezar sos. Tavuklu seçenek mevcut.', 150, 1, FALSE),
+  ('Çoban Salata', 'Domates, salatalık, biber, soğan ve maydanoz.', 80, 2, FALSE),
+  ('Akdeniz Salatası', 'Roka, kuru domates, beyaz peynir, ceviz ve nar ekşisi.', 130, 3, FALSE)
+) AS v(name, description, price, sort_order, is_featured)
+WHERE c.tenant_id = v_tenant_id AND c.slug = 'salatalar'
+ON CONFLICT DO NOTHING;
+
+-- Kahveler
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
+FROM menu_categories c,
+(VALUES
+  ('Türk Kahvesi', 'Geleneksel közde pişirme yöntemiyle hazırlanan Türk kahvesi.', 60, 1, TRUE),
+  ('Espresso', 'Özel harman çekirdeklerden hazırlanan tek shot espresso.', 55, 2, FALSE),
+  ('Latte', 'Espresso ve kremamsı süt köpüğü.', 80, 3, FALSE),
+  ('Cappuccino', 'Espresso, buharla ısıtılmış süt ve köpük.', 80, 4, FALSE),
+  ('Filtre Kahve', 'Günlük taze çekilmiş filtre kahve.', 65, 5, FALSE)
+) AS v(name, description, price, sort_order, is_featured)
+WHERE c.tenant_id = v_tenant_id AND c.slug = 'kahveler'
+ON CONFLICT DO NOTHING;
+
+-- Soğuk İçecekler
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
+FROM menu_categories c,
+(VALUES
+  ('Taze Limonata', 'Ev yapımı taze sıkılmış limonata. Naneli seçenek mevcut.', 70, 1, TRUE),
+  ('Buzlu Çay', 'Şeftali veya limon aromalı buzlu çay.', 60, 2, FALSE),
+  ('Smoothie', 'Muz, çilek ve yoğurt karışımı taze smoothie.', 90, 3, FALSE),
+  ('Ice Latte', 'Buzlu espresso ve soğuk süt.', 90, 4, FALSE),
+  ('Mevsim Meyve Suyu', 'Günlük taze sıkım portakal veya nar suyu.', 75, 5, FALSE)
+) AS v(name, description, price, sort_order, is_featured)
+WHERE c.tenant_id = v_tenant_id AND c.slug = 'soguk-icecekler'
+ON CONFLICT DO NOTHING;
+
+-- Sıcak İçecekler
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
+FROM menu_categories c,
+(VALUES
+  ('Çay', 'Demleme siyah çay, sınırsız.', 30, 1, FALSE),
+  ('Bitki Çayı', 'Ihlamur, papatya, adaçayı veya kuşburnu.', 50, 2, FALSE),
+  ('Sahlep', 'Tarçın ve fındık ile sıcak sahlep.', 70, 3, FALSE),
+  ('Sıcak Çikolata', 'Gerçek çikolatadan hazırlanan sıcak çikolata. Marşmelov ile.', 80, 4, FALSE)
+) AS v(name, description, price, sort_order, is_featured)
+WHERE c.tenant_id = v_tenant_id AND c.slug = 'sicak-icecekler'
+ON CONFLICT DO NOTHING;
+
+-- Tatlılar
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
+FROM menu_categories c,
+(VALUES
+  ('Künefe', 'Hatay usulü tel kadayıf künefe, dondurma eşliğinde.', 150, 1, TRUE),
+  ('Sufle', 'Sıcak çikolatalı sufle, vanilyalı dondurma ile.', 130, 2, TRUE),
+  ('San Sebastian Cheesecake', 'Ev yapımı San Sebastian usulü cheesecake.', 120, 3, FALSE),
+  ('Baklava', 'Antep fıstıklı ev baklavası. 4 dilim.', 140, 4, FALSE),
+  ('Tiramisu', 'İtalyan usulü mascarpone kremalı tiramisu.', 110, 5, FALSE)
+) AS v(name, description, price, sort_order, is_featured)
+WHERE c.tenant_id = v_tenant_id AND c.slug = 'tatlilar'
+ON CONFLICT DO NOTHING;
+
+-- =========================
+-- 9c. GALLERY ITEMS (Yeşilçam demo)
+-- =========================
+INSERT INTO gallery_items (tenant_id, image_url, alt_text, caption, sort_order, is_visible) VALUES
+  (v_tenant_id, '/images/gallery/interior-1.jpg', 'Yeşilçam Çekmeköy iç mekan', 'Sıcak ve davetkar iç mekanımız', 1, TRUE),
+  (v_tenant_id, '/images/gallery/interior-2.jpg', 'Yeşilçam Çekmeköy oturma alanı', 'Rahat oturma alanlarımız', 2, TRUE),
+  (v_tenant_id, '/images/gallery/food-1.jpg', 'Serpme kahvaltı', 'Zengin serpme kahvaltımız', 3, TRUE),
+  (v_tenant_id, '/images/gallery/food-2.jpg', 'Pizza servis', 'Fırından taze pizza', 4, TRUE),
+  (v_tenant_id, '/images/gallery/ambiance-1.jpg', 'Akşam atmosferi', 'Akşam aydınlatması ile mekan', 5, TRUE),
+  (v_tenant_id, '/images/gallery/detail-1.jpg', 'Türk kahvesi servisi', 'Geleneksel Türk kahvesi servisimiz', 6, TRUE)
+ON CONFLICT DO NOTHING;
+
+-- =========================
+-- 9d. CAMPAIGNS (Yeşilçam demo)
+-- =========================
+INSERT INTO campaigns (tenant_id, title, slug, description, start_date, end_date, is_active, sort_order) VALUES
+  (
+    v_tenant_id,
+    'Hafta İçi Kahvaltı Fırsatı',
+    'hafta-ici-kahvalti',
+    'Pazartesi - Cuma arası 2 kişilik serpme kahvaltıda %20 indirim! Güne enerjik başlayın.',
+    '2026-03-01',
+    '2026-06-30',
+    TRUE,
+    1
+  ),
+  (
+    v_tenant_id,
+    'Öğrenci Menüsü',
+    'ogrenci-menusu',
+    'Geçerli öğrenci kimliği ile ana yemek + içecek kombinasyonlarında özel fiyatlar.',
+    '2026-01-01',
+    '2026-12-31',
+    TRUE,
+    2
+  )
+ON CONFLICT DO NOTHING;
 
 -- =========================
 -- 10. FAQ ITEMS
@@ -195,35 +356,51 @@ INSERT INTO faq_items (tenant_id, question, answer, sort_order, is_visible) VALU
 INSERT INTO testimonials (tenant_id, reviewer_name, rating, quote, source, is_featured, is_published, sort_order) VALUES
   (
     v_tenant_id,
-    'Ayşe K.',
+    'Ayşe Korkmaz',
     5,
-    'Harika bir atmosfer ve lezzetli yemekler. Sinema teması çok yaratıcı, kendimizi özel hissettik.',
+    'Harika bir atmosfer ve lezzetli yemekler. Sinema teması çok yaratıcı, kendimizi özel hissettik. Serpme kahvaltısı muhteşemdi!',
     'Google',
     TRUE, TRUE, 1
   ),
   (
     v_tenant_id,
-    'Mehmet Y.',
+    'Mehmet Yıldırım',
     5,
-    'Kahvaltısı mükemmel, kahveleri harika. Çekmeköy''deki en sevdiğim mekan.',
-    'Instagram',
+    'Kahvaltısı mükemmel, Türk kahvesi harika. Çekmeköy''de bu kalitede bir mekan bulmak güzel. Her hafta sonu ailecek geliyoruz.',
+    'Google',
     TRUE, TRUE, 2
   ),
   (
     v_tenant_id,
-    'Selin D.',
-    4,
-    'Doğum günümüzü burada kutladık. Ekip çok ilgiliydi, dekorasyon muhteşemdi.',
-    'Google',
+    'Selin Demir',
+    5,
+    'Doğum günümüzü burada kutladık. Ekip çok ilgiliydi, mekan dekorasyonu muhteşemdi. Etkinlik organizasyonu için kesinlikle tavsiye ederim.',
+    'Instagram',
     TRUE, TRUE, 3
   ),
   (
     v_tenant_id,
-    'Emre B.',
+    'Emre Başaran',
     5,
-    'Pizza ve soğuk içecekler çok başarılı. Her hafta sonu geliyoruz artık.',
+    'Yeşilçam Special pizza ve taze limonata favori kombinasyonum oldu. Her hafta sonu geliyoruz artık. Personel çok güler yüzlü.',
     'TripAdvisor',
     FALSE, TRUE, 4
+  ),
+  (
+    v_tenant_id,
+    'Zehra Aydın',
+    5,
+    'Kurumsal yemeğimizi burada verdik, 30 kişilik gruba sorunsuz hizmet ettiler. Menü çeşitliliği ve sunum kalitesi beklentimizin üzerindeydi.',
+    'Google',
+    FALSE, TRUE, 5
+  ),
+  (
+    v_tenant_id,
+    'Burak Çelik',
+    4,
+    'Akşam yemeği için gittiğimde bonfile ve sufle denedim, ikisi de çok başarılıydı. Mekan sessiz ve huzurlu, romantik akşamlar için ideal.',
+    'Google',
+    FALSE, TRUE, 6
   );
 
 END $seed$;

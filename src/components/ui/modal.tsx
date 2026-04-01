@@ -51,7 +51,7 @@ function Modal({ open, onClose, title, description, children, size = 'md' }: Mod
       aria-label={title}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-charcoal-900/60 backdrop-blur-sm animate-fade-in" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" />
 
       {/* Content */}
       <div
@@ -70,15 +70,15 @@ function Modal({ open, onClose, title, description, children, size = 'md' }: Mod
             <div className="flex items-start justify-between">
               <div>
                 {title && (
-                  <h2 className="font-serif text-xl font-semibold text-charcoal-900">{title}</h2>
+                  <h2 className="font-serif text-xl font-semibold text-brand-text">{title}</h2>
                 )}
                 {description && (
-                  <p className="mt-1 text-sm text-charcoal-600">{description}</p>
+                  <p className="mt-1 text-sm text-brand-text-muted">{description}</p>
                 )}
               </div>
               <button
                 onClick={onClose}
-                className="ml-4 p-1 text-charcoal-400 hover:text-charcoal-600 transition-colors rounded-button focus-visible:ring-2 focus-visible:ring-forest-600"
+                className="ml-4 p-1 text-brand-text-muted hover:text-brand-text transition-colors rounded-button focus-visible:ring-2 focus-visible:ring-brand-primary"
                 aria-label="Kapat"
               >
                 <X size={20} />

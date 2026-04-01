@@ -86,9 +86,9 @@ const config: Config = {
         button: '8px',
       },
       boxShadow: {
-        card: '0 4px 24px rgba(26, 46, 26, 0.08)',
-        'card-hover': '0 8px 32px rgba(26, 46, 26, 0.12)',
-        nav: '0 2px 16px rgba(26, 46, 26, 0.06)',
+        card: '0 4px 24px color-mix(in srgb, var(--brand-primary) 8%, transparent)',
+        'card-hover': '0 8px 32px color-mix(in srgb, var(--brand-primary) 14%, transparent)',
+        nav: '0 2px 16px color-mix(in srgb, var(--brand-primary) 6%, transparent)',
       },
       maxWidth: {
         site: '1280px',

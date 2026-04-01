@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react'
 import { useTenant } from '@/lib/tenant'
 import { Container } from '@/components/ui/container'
-import { Section, SectionHeader } from '@/components/ui/section'
+import { Section } from '@/components/ui/section'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -156,12 +156,17 @@ export default function ReservationPage() {
   }
 
   return (
-    <Section className="bg-brand-surface pt-24">
-      <Container size="narrow">
-        <SectionHeader
-          title="Rezervasyon"
-          subtitle={`${businessName}'da yerinizi ayırtın`}
-        />
+    <>
+      <section className="bg-brand-gradient text-white pt-28 pb-12">
+        <Container className="text-center">
+          <h1 className="text-heading text-white mb-3">Rezervasyon</h1>
+          <p className="text-body-lg text-white/70 max-w-xl mx-auto">{businessName}&apos;da yerinizi ayırtın</p>
+          <div className="gold-divider mt-6" />
+        </Container>
+      </section>
+
+      <Section className="bg-brand-gradient-subtle">
+        <Container size="narrow">
 
         {/* Step indicators */}
         <div className="flex items-center justify-center gap-2 mb-8" role="navigation" aria-label="Rezervasyon adımları">
@@ -176,14 +181,14 @@ export default function ReservationPage() {
                     ? 'bg-brand-primary text-white'
                     : isPast
                       ? 'bg-brand-primary/20 text-brand-primary'
-                      : 'bg-charcoal-100 text-charcoal-400'
+                      : 'bg-brand-surface text-brand-text-muted'
                 }`}>
                   {isPast ? '✓' : i + 1}
                 </div>
-                <span className={`text-xs hidden sm:inline ${isActive ? 'font-semibold text-charcoal-900' : 'text-charcoal-400'}`}>
+                <span className={`text-xs hidden sm:inline ${isActive ? 'font-semibold text-brand-text' : 'text-brand-text-muted'}`}>
                   {labels[i]}
                 </span>
-                {i < 3 && <div className="w-6 h-px bg-charcoal-200 hidden sm:block" />}
+                {i < 3 && <div className="w-6 h-px bg-brand-border hidden sm:block" />}
               </div>
             )
           })}
@@ -192,7 +197,7 @@ export default function ReservationPage() {
         {/* STEP 1: Date Selection */}
         {step === 'date' && (
           <Card>
-            <h3 className="font-serif text-lg font-semibold text-charcoal-900 mb-4">Tarih Seçin</h3>
+            <h3 className="font-serif text-lg font-semibold text-brand-text mb-4">Tarih Seçin</h3>
             <FormField label="Rezervasyon Tarihi">
               <Input
                 type="date"
@@ -209,29 +214,29 @@ export default function ReservationPage() {
         {step === 'slot' && (
           <Card>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-serif text-lg font-semibold text-charcoal-900">
+              <h3 className="font-serif text-lg font-semibold text-brand-text">
                 Saat Seçin
               </h3>
               <button onClick={() => setStep('date')} className="text-sm text-brand-primary hover:underline">
                 Tarihi Değiştir
               </button>
             </div>
-            <p className="text-sm text-charcoal-500 mb-4">{formatDate(selectedDate)}</p>
+            <p className="text-sm text-brand-text-muted mb-4">{formatDate(selectedDate)}</p>
 
             {loadingSlots ? (
               <Loading />
             ) : !availability ? (
-              <p className="text-sm text-charcoal-500">Müsaitlik bilgisi yüklenemedi.</p>
+              <p className="text-sm text-brand-text-muted">Müsaitlik bilgisi yüklenemedi.</p>
             ) : !availability.is_open ? (
               <div className="text-center py-6">
-                <p className="text-charcoal-500">{availability.reason || 'Bu gün kapalıyız.'}</p>
+                <p className="text-brand-text-muted">{availability.reason || 'Bu gün kapalıyız.'}</p>
                 <Button variant="secondary" className="mt-4" onClick={() => setStep('date')}>
                   Başka Tarih Seçin
                 </Button>
               </div>
             ) : availability.slots.length === 0 ? (
               <div className="text-center py-6">
-                <p className="text-charcoal-500">Bu tarihte müsait saat bulunamadı.</p>
+                <p className="text-brand-text-muted">Bu tarihte müsait saat bulunamadı.</p>
                 <Button variant="secondary" className="mt-4" onClick={() => setStep('date')}>
                   Başka Tarih Seçin
                 </Button>
@@ -245,8 +250,8 @@ export default function ReservationPage() {
                     onClick={() => handleSlotSelect(slot)}
                     className={`p-3 rounded-card text-sm font-medium border transition-all ${
                       slot.available
-                        ? 'border-brand-border hover:border-brand-primary hover:bg-brand-primary/5 text-charcoal-900 cursor-pointer'
-                        : 'border-charcoal-100 bg-charcoal-50 text-charcoal-300 cursor-not-allowed'
+                        ? 'border-brand-border hover:border-brand-primary hover:bg-brand-primary/5 text-brand-text cursor-pointer'
+                        : 'border-brand-border bg-brand-surface text-brand-text-muted cursor-not-allowed'
                     } ${selectedSlot?.time === slot.time ? 'border-brand-primary bg-brand-primary/10 ring-2 ring-brand-primary/20' : ''}`}
                     aria-label={`${slot.time} - ${slot.available ? `${slot.remaining} kişilik yer var` : 'Dolu'}`}
                   >
@@ -269,7 +274,7 @@ export default function ReservationPage() {
         {step === 'form' && selectedSlot && (
           <Card>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-serif text-lg font-semibold text-charcoal-900">Bilgileriniz</h3>
+              <h3 className="font-serif text-lg font-semibold text-brand-text">Bilgileriniz</h3>
               <button onClick={() => setStep('slot')} className="text-sm text-brand-primary hover:underline">
                 Saati Değiştir
               </button>
@@ -352,29 +357,29 @@ export default function ReservationPage() {
         {step === 'confirm' && result?.ok && (
           <Card className="text-center">
             <div className="text-4xl mb-3">✅</div>
-            <h3 className="font-serif text-xl font-semibold text-charcoal-900 mb-2">
+            <h3 className="font-serif text-xl font-semibold text-brand-text mb-2">
               Rezervasyonunuz Alındı!
             </h3>
-            <p className="text-sm text-charcoal-600 mb-6">
+            <p className="text-sm text-brand-text-muted mb-6">
               {businessName} sizi ağırlamaktan mutluluk duyacak.
             </p>
 
             <div className="bg-brand-surface rounded-card p-4 mb-6 text-left space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-charcoal-500">Tarih:</span>
-                <span className="font-medium text-charcoal-900">{formatDate(selectedDate)}</span>
+                <span className="text-brand-text-muted">Tarih:</span>
+                <span className="font-medium text-brand-text">{formatDate(selectedDate)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-charcoal-500">Saat:</span>
-                <span className="font-medium text-charcoal-900">{selectedSlot?.time}</span>
+                <span className="text-brand-text-muted">Saat:</span>
+                <span className="font-medium text-brand-text">{selectedSlot?.time}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-charcoal-500">Kişi:</span>
-                <span className="font-medium text-charcoal-900">{form.party_size}</span>
+                <span className="text-brand-text-muted">Kişi:</span>
+                <span className="font-medium text-brand-text">{form.party_size}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-charcoal-500">Ad Soyad:</span>
-                <span className="font-medium text-charcoal-900">{form.guest_name}</span>
+                <span className="text-brand-text-muted">Ad Soyad:</span>
+                <span className="font-medium text-brand-text">{form.guest_name}</span>
               </div>
             </div>
 
@@ -385,5 +390,6 @@ export default function ReservationPage() {
         )}
       </Container>
     </Section>
+    </>
   )
 }

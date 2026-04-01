@@ -19,6 +19,8 @@ export function Footer() {
 
   return (
     <footer className="bg-brand-primary-dark text-white/80">
+      {/* Gradient top border */}
+      <div className="h-1 bg-brand-gradient" />
       {/* Main footer content */}
       <div className="section-padding-sm">
         <Container>
@@ -129,11 +131,10 @@ export function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-brand-primary/50">
+      <div className="border-t border-white/10">
         <Container>
-          <div className="py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/40">
+          <div className="py-4 text-center text-xs text-white/40">
             <p>&copy; {currentYear} {businessName}. Tüm hakları saklıdır.</p>
-            {branding.footer_text && <p>{branding.footer_text}</p>}
           </div>
         </Container>
       </div>

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTenant } from '@/lib/tenant'
 import { Container } from '@/components/ui/container'
-import { Section, SectionHeader } from '@/components/ui/section'
+import { Section } from '@/components/ui/section'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -78,14 +78,18 @@ export default function EventsPage() {
   }
 
   return (
-    <Section className="bg-brand-surface pt-24">
-      <Container size="narrow">
-        <SectionHeader
-          title="Özel Etkinlik Talebi"
-          subtitle="Doğum günleri, kurumsal etkinlikler, özel yemekler ve daha fazlası"
-        />
+    <>
+      <section className="bg-brand-gradient text-white pt-28 pb-12">
+        <Container className="text-center">
+          <h1 className="text-heading text-white mb-3">Özel Etkinlik Talebi</h1>
+          <p className="text-body-lg text-white/70 max-w-xl mx-auto">Doğum günleri, kurumsal etkinlikler, özel yemekler ve daha fazlası</p>
+          <div className="gold-divider mt-6" />
+        </Container>
+      </section>
 
-        <Card>
+      <Section className="bg-brand-gradient-subtle">
+        <Container size="narrow">
+          <Card>
           {result && (
             <div className={`mb-4 p-3 rounded-card text-sm ${result.ok ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
               {result.message}
@@ -176,5 +180,6 @@ export default function EventsPage() {
         </Card>
       </Container>
     </Section>
+    </>
   )
 }

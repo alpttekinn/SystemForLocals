@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { requireTenantId } from '@/lib/data/tenant'
 import { getActiveCampaigns } from '@/lib/data/campaigns'
 import { Container } from '@/components/ui/container'
-import { Section, SectionHeader } from '@/components/ui/section'
+import { Section } from '@/components/ui/section'
 import { tenantMetadata } from '@/lib/seo'
 
 export async function generateMetadata() {
@@ -28,22 +28,29 @@ export default async function CampaignsPage() {
   return (
     <>
     <RevealProvider />
-    <Section className="bg-brand-surface pt-24">
-      <Container>
-        <SectionHeader
-          title="Kampanyalar"
-          subtitle="Güncel fırsat ve etkinliklerimizi keşfedin"
-        />
+    {/* Hero banner */}
+    <section className="bg-brand-gradient text-white pt-28 pb-12">
+      <Container className="text-center">
+        <h1 className="text-heading text-white mb-3">Kampanyalar</h1>
+        <p className="text-body-lg text-white/70 max-w-xl mx-auto">Güncel fırsat ve etkinliklerimizi keşfedin</p>
+        <div className="gold-divider mt-6" />
+      </Container>
+    </section>
 
+    <Section className="bg-brand-gradient-subtle">
+      <Container>
         {campaigns.length === 0 ? (
-          <EmptyState title="Şu an aktif kampanya bulunmamaktadır." />
+          <EmptyState
+            title="Yeni kampanyalar yolda"
+            description="Fırsat ve etkinliklerimiz için bizi takipte kalın."
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto reveal-stagger">
             {campaigns.map((campaign) => (
               <Link key={campaign.id} href={`/campaigns/${campaign.slug}`} className="reveal">
-                <Card hover className="h-full">
+                <Card hover className="h-full overflow-hidden" padding="none">
                   {campaign.image_url && (
-                    <div className="aspect-video relative rounded-card overflow-hidden mb-4">
+                    <div className="aspect-video relative overflow-hidden">
                       <Image
                         src={campaign.image_url}
                         alt={campaign.image_alt || campaign.title}
@@ -51,16 +58,19 @@ export default async function CampaignsPage() {
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 50vw"
                       />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                     </div>
                   )}
-                  <h3 className="font-serif text-lg font-semibold text-charcoal-900">
-                    {campaign.title}
-                  </h3>
-                  {campaign.description && (
-                    <p className="text-sm text-charcoal-500 mt-2 line-clamp-3">
-                      {campaign.description}
-                    </p>
-                  )}
+                  <div className="p-5">
+                    <h3 className="font-serif text-lg font-semibold text-brand-text">
+                      {campaign.title}
+                    </h3>
+                    {campaign.description && (
+                      <p className="text-sm text-brand-text-muted mt-2 line-clamp-3">
+                        {campaign.description}
+                      </p>
+                    )}
+                  </div>
                 </Card>
               </Link>
             ))}

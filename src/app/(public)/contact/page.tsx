@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTenant } from '@/lib/tenant'
 import { Container } from '@/components/ui/container'
-import { Section, SectionHeader } from '@/components/ui/section'
+import { Section } from '@/components/ui/section'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -51,12 +51,18 @@ export default function ContactPage() {
   }
 
   return (
-    <Section className="bg-brand-surface pt-24">
-      <Container>
-        <SectionHeader
-          title="İletişim"
-          subtitle="Bize ulaşın, sorularınızı yanıtlayalım"
-        />
+    <>
+      {/* Hero banner */}
+      <section className="bg-brand-gradient text-white pt-28 pb-12">
+        <Container className="text-center">
+          <h1 className="text-heading text-white mb-3">İletişim</h1>
+          <p className="text-body-lg text-white/70 max-w-xl mx-auto">Bize ulaşın, sorularınızı yanıtlayalım</p>
+          <div className="gold-divider mt-6" />
+        </Container>
+      </section>
+
+      <Section className="bg-brand-gradient-subtle">
+        <Container>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto reveal-stagger">
           {/* Contact Info */}
@@ -65,10 +71,10 @@ export default function ContactPage() {
               <div className="flex items-start gap-3">
                 <MapPin size={20} className="text-brand-primary shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold text-charcoal-900 text-sm">Adres</h3>
-                  <p className="text-sm text-charcoal-600">{contact.address}</p>
+                  <h3 className="font-semibold text-brand-text text-sm">Adres</h3>
+                  <p className="text-sm text-brand-text-muted">{contact.address}</p>
                   {contact.district && contact.city && (
-                    <p className="text-sm text-charcoal-500">{contact.district}, {contact.city}</p>
+                    <p className="text-sm text-brand-text-muted">{contact.district}, {contact.city}</p>
                   )}
                 </div>
               </div>
@@ -78,12 +84,12 @@ export default function ContactPage() {
               <div className="flex items-start gap-3">
                 <Phone size={20} className="text-brand-primary shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold text-charcoal-900 text-sm">Telefon</h3>
-                  <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="text-sm text-charcoal-600 hover:text-brand-primary transition-colors">
+                  <h3 className="font-semibold text-brand-text text-sm">Telefon</h3>
+                  <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="text-sm text-brand-text-muted hover:text-brand-primary transition-colors">
                     {contact.phone}
                   </a>
                   {contact.phone_secondary && (
-                    <p className="text-sm text-charcoal-500">{contact.phone_secondary}</p>
+                    <p className="text-sm text-brand-text-muted">{contact.phone_secondary}</p>
                   )}
                 </div>
               </div>
@@ -93,8 +99,8 @@ export default function ContactPage() {
               <div className="flex items-start gap-3">
                 <Mail size={20} className="text-brand-primary shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold text-charcoal-900 text-sm">E-posta</h3>
-                  <a href={`mailto:${contact.email}`} className="text-sm text-charcoal-600 hover:text-brand-primary transition-colors">
+                  <h3 className="font-semibold text-brand-text text-sm">E-posta</h3>
+                  <a href={`mailto:${contact.email}`} className="text-sm text-brand-text-muted hover:text-brand-primary transition-colors">
                     {contact.email}
                   </a>
                 </div>
@@ -120,7 +126,7 @@ export default function ContactPage() {
 
           {/* Contact Form */}
           <Card className="reveal">
-            <h3 className="font-serif text-xl font-semibold text-charcoal-900 mb-4">Mesaj Gönderin</h3>
+            <h3 className="font-serif text-xl font-semibold text-brand-text mb-4">Mesaj Gönderin</h3>
 
             {result && (
               <div className={`mb-4 p-3 rounded-card text-sm ${result.ok ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
@@ -169,5 +175,6 @@ export default function ContactPage() {
         </div>
       </Container>
     </Section>
+    </>
   )
 }
