@@ -37,7 +37,7 @@ export function Header() {
       'sticky top-0 z-50 transition-all duration-300',
       scrolled
         ? 'bg-brand-primary-dark/95 backdrop-blur-md shadow-nav'
-        : 'bg-brand-primary-dark/70 backdrop-blur-sm',
+        : 'bg-brand-primary-dark/90 backdrop-blur-sm',
     )}>
       <Container>
         <div className="flex items-center justify-between h-16 md:h-20">
@@ -53,7 +53,7 @@ export function Header() {
                 priority
               />
             ) : (
-              <span className="font-serif text-xl md:text-2xl font-bold text-white tracking-tight">
+              <span className="font-serif text-xl md:text-2xl font-bold text-brand-secondary tracking-tight">
                 {businessName}
               </span>
             )}
@@ -70,8 +70,8 @@ export function Header() {
                   className={cn(
                     'px-3 py-2 text-sm font-sans font-medium rounded-button transition-colors duration-200',
                     isActive
-                      ? 'text-brand-accent'
-                      : 'text-white/80 hover:text-white hover:bg-white/5',
+                      ? 'text-brand-secondary'
+                      : 'text-white/90 hover:text-white hover:bg-white/10',
                   )}
                 >
                   {link.label}
@@ -92,7 +92,7 @@ export function Header() {
 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden p-2 text-white hover:text-brand-accent transition-colors rounded-button"
+              className="lg:hidden p-2 text-white hover:text-brand-secondary transition-colors rounded-button"
               aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
               aria-expanded={mobileOpen}
             >
@@ -121,8 +121,8 @@ export function Header() {
                   className={cn(
                     'px-3 py-2.5 text-base font-sans font-medium rounded-button transition-colors',
                     isActive
-                      ? 'text-brand-accent bg-white/5'
-                      : 'text-white/80 hover:text-white hover:bg-white/5',
+                      ? 'text-brand-secondary bg-white/5'
+                      : 'text-white/90 hover:text-white hover:bg-white/10',
                   )}
                 >
                   {link.label}

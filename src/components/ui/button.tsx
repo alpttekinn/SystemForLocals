@@ -21,13 +21,13 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         className={cn(
           'inline-flex items-center justify-center font-sans font-semibold transition-all duration-200 rounded-button',
-          'focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           // Variants
-          variant === 'primary' && 'bg-forest-800 text-cream-50 hover:bg-forest-700 active:bg-forest-900',
-          variant === 'secondary' && 'border-2 border-forest-800 text-forest-800 bg-transparent hover:bg-forest-800 hover:text-cream-50 active:bg-forest-900 active:text-cream-50',
-          variant === 'cta' && 'bg-burgundy-700 text-cream-50 hover:bg-burgundy-500 hover:scale-[1.02] active:bg-burgundy-900 active:scale-[0.98] border-b-2 border-gold-600 shadow-md hover:shadow-lg',
-          variant === 'ghost' && 'text-forest-800 bg-transparent hover:bg-forest-50 active:bg-forest-100',
+          variant === 'primary' && 'bg-brand-primary text-white hover:bg-brand-primary-light active:bg-brand-primary-dark',
+          variant === 'secondary' && 'border-2 border-brand-primary text-brand-primary bg-transparent hover:bg-brand-primary hover:text-white active:bg-brand-primary-dark active:text-white',
+          variant === 'cta' && 'bg-brand-secondary text-white hover:brightness-110 hover:scale-[1.02] active:brightness-90 active:scale-[0.98] shadow-md hover:shadow-lg',
+          variant === 'ghost' && 'text-brand-primary bg-transparent hover:bg-brand-surface active:bg-brand-surface-alt',
           variant === 'danger' && 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800',
           // Sizes
           size === 'sm' && 'text-sm px-3 py-1.5 gap-1.5',

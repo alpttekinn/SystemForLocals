@@ -16,8 +16,8 @@
     --brand-primary: #264d26;
     --brand-primary-light: #357a35;
     --brand-primary-dark: #1a2e1a;
-    --brand-secondary: #6b1d34;
-    --brand-secondary-light: #8b2545;
+    --brand-secondary: #b8960c;
+    --brand-secondary-light: #d4b44a;
     --brand-accent: #b8960c;
     --brand-accent-light: #d4b44a;
     --brand-bg: #fdfbf7;
@@ -38,7 +38,7 @@
 
   body {
     background-color: var(--brand-bg);
-    @apply text-charcoal-900 font-sans;
+    @apply text-brand-text font-sans;
   }
 
   h1, h2, h3 {

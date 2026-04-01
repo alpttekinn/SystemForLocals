@@ -90,7 +90,7 @@ const VARIANT_STYLES: Record<ToastVariant, string> = {
   success: 'border-emerald-500 bg-emerald-50 text-emerald-900',
   error: 'border-red-500 bg-red-50 text-red-900',
   warning: 'border-amber-500 bg-amber-50 text-amber-900',
-  info: 'border-forest-600 bg-forest-50 text-forest-900',
+  info: 'border-blue-500 bg-blue-50 text-blue-900',
 }
 
 const VARIANT_ICONS: Record<ToastVariant, typeof CheckCircle> = {

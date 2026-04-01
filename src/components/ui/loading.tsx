@@ -12,14 +12,14 @@ function Loading({ message = 'Yükleniyor...', size = 'md', className }: Loading
     <div className={cn('flex flex-col items-center justify-center gap-3 py-12', className)}>
       <Loader2
         className={cn(
-          'animate-spin text-forest-700',
+          'animate-spin text-brand-primary',
           size === 'sm' && 'h-5 w-5',
           size === 'md' && 'h-8 w-8',
           size === 'lg' && 'h-12 w-12',
         )}
       />
       {message && (
-        <p className="text-sm text-charcoal-500 font-sans">{message}</p>
+        <p className="text-sm text-brand-text-muted font-sans">{message}</p>
       )}
     </div>
   )

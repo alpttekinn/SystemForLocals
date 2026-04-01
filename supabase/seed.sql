@@ -71,7 +71,7 @@ INSERT INTO tenant_contact (
   'Çekmeköy',
   '34776',
   'TR',
-  'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.0!2d29.37!3d41.05',
+  'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.271!2d29.3697!3d41.0493!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cacf8e3de87b1d%3A0x4357c6152e28cb10!2s%C3%87ekmek%C3%B6y%2C%20Istanbul!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
   'https://instagram.com/yesilcamcekmekoy'
 )
 ON CONFLICT (tenant_id) DO NOTHING;
@@ -286,7 +286,13 @@ INSERT INTO gallery_items (tenant_id, image_url, alt_text, caption, sort_order, 
   (v_tenant_id, '/images/gallery/food-1.jpg', 'Serpme kahvaltı', 'Zengin serpme kahvaltımız', 3, TRUE),
   (v_tenant_id, '/images/gallery/food-2.jpg', 'Pizza servis', 'Fırından taze pizza', 4, TRUE),
   (v_tenant_id, '/images/gallery/ambiance-1.jpg', 'Akşam atmosferi', 'Akşam aydınlatması ile mekan', 5, TRUE),
-  (v_tenant_id, '/images/gallery/detail-1.jpg', 'Türk kahvesi servisi', 'Geleneksel Türk kahvesi servisimiz', 6, TRUE)
+  (v_tenant_id, '/images/gallery/detail-1.jpg', 'Türk kahvesi servisi', 'Geleneksel Türk kahvesi servisimiz', 6, TRUE),
+  (v_tenant_id, '/images/gallery/food-3.jpg', 'Bonfile tabağı', 'Özenle hazırlanan ana yemekler', 7, TRUE),
+  (v_tenant_id, '/images/gallery/terrace-1.jpg', 'Teras alanı', 'Bahçe ve teras oturma alanımız', 8, TRUE),
+  (v_tenant_id, '/images/gallery/dessert-1.jpg', 'Tatlı tabağı', 'El yapımı tatlı çeşitlerimiz', 9, TRUE),
+  (v_tenant_id, '/images/gallery/event-1.jpg', 'Özel etkinlik', 'Doğum günü organizasyonu', 10, TRUE),
+  (v_tenant_id, '/images/gallery/bar-1.jpg', 'İçecek servis', 'Özel latte art kahvelerimiz', 11, TRUE),
+  (v_tenant_id, '/images/gallery/ambiance-2.jpg', 'Nostaljik dekor', 'Yeşilçam temalı dekorasyon detayları', 12, TRUE)
 ON CONFLICT DO NOTHING;
 
 -- =========================
@@ -312,6 +318,26 @@ INSERT INTO campaigns (tenant_id, title, slug, description, start_date, end_date
     '2026-12-31',
     TRUE,
     2
+  ),
+  (
+    v_tenant_id,
+    'Akşam Yemeği Paketi',
+    'aksam-yemegi-paketi',
+    '2 kişilik akşam yemeği paketi: Başlangıç + Ana Yemek + Tatlı + İçecek sadece 550₺. Cuma ve Cumartesi geçerli.',
+    '2026-04-01',
+    '2026-09-30',
+    TRUE,
+    3
+  ),
+  (
+    v_tenant_id,
+    'Doğum Günü Sürprizi',
+    'dogum-gunu-surprizi',
+    'Doğum gününüzü bizimle kutlayın! 4+ kişilik rezervasyonlarda doğum günü pastası hediye.',
+    '2026-01-01',
+    '2026-12-31',
+    TRUE,
+    4
   )
 ON CONFLICT DO NOTHING;
 
@@ -384,7 +410,7 @@ INSERT INTO testimonials (tenant_id, reviewer_name, rating, quote, source, is_fe
     5,
     'Yeşilçam Special pizza ve taze limonata favori kombinasyonum oldu. Her hafta sonu geliyoruz artık. Personel çok güler yüzlü.',
     'TripAdvisor',
-    FALSE, TRUE, 4
+    TRUE, TRUE, 4
   ),
   (
     v_tenant_id,
@@ -392,7 +418,7 @@ INSERT INTO testimonials (tenant_id, reviewer_name, rating, quote, source, is_fe
     5,
     'Kurumsal yemeğimizi burada verdik, 30 kişilik gruba sorunsuz hizmet ettiler. Menü çeşitliliği ve sunum kalitesi beklentimizin üzerindeydi.',
     'Google',
-    FALSE, TRUE, 5
+    TRUE, TRUE, 5
   ),
   (
     v_tenant_id,
@@ -400,7 +426,39 @@ INSERT INTO testimonials (tenant_id, reviewer_name, rating, quote, source, is_fe
     4,
     'Akşam yemeği için gittiğimde bonfile ve sufle denedim, ikisi de çok başarılıydı. Mekan sessiz ve huzurlu, romantik akşamlar için ideal.',
     'Google',
-    FALSE, TRUE, 6
+    TRUE, TRUE, 6
+  ),
+  (
+    v_tenant_id,
+    'Deniz Kaya',
+    5,
+    'Çekmeköy''de en sevdiğim mekan. Hem yemek kalitesi hem de ambiyans olarak çok başarılı. Künefesi mutlaka deneyin!',
+    'Google',
+    FALSE, TRUE, 7
+  ),
+  (
+    v_tenant_id,
+    'Fatma Özkan',
+    5,
+    'Vejetaryen seçeneklerin bu kadar çeşitli olması beni çok mutlu etti. Akdeniz salatası ve mantar sote favorilerim.',
+    'Instagram',
+    FALSE, TRUE, 8
+  ),
+  (
+    v_tenant_id,
+    'Okan Yılmaz',
+    5,
+    'İş toplantılarımız için düzenli olarak tercih ediyoruz. Sakin ortam, kaliteli servis ve lezzetli menü. Tam puan!',
+    'Google',
+    FALSE, TRUE, 9
+  ),
+  (
+    v_tenant_id,
+    'Canan Arslan',
+    4,
+    'Nişan yemeğimizi burada yaptık, 50 kişilik organizasyonu harika yönettiler. Özel menü hazırladılar, herkes çok beğendi.',
+    'TripAdvisor',
+    FALSE, TRUE, 10
   );
 
 END $seed$;

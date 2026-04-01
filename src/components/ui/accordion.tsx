@@ -43,13 +43,13 @@ function Accordion({ items, multiple = false, className }: AccordionProps) {
               className="flex w-full items-center justify-between py-4 px-1 text-left group"
               aria-expanded={isOpen}
             >
-              <span className="font-sans text-base font-medium text-charcoal-900 group-hover:text-forest-800 transition-colors">
+              <span className="font-sans text-base font-medium text-brand-text group-hover:text-brand-primary transition-colors">
                 {item.title}
               </span>
               <ChevronDown
                 size={18}
                 className={cn(
-                  'shrink-0 ml-4 text-charcoal-400 transition-transform duration-200',
+                  'shrink-0 ml-4 text-brand-text-muted transition-transform duration-200',
                   isOpen && 'rotate-180',
                 )}
               />
@@ -60,7 +60,7 @@ function Accordion({ items, multiple = false, className }: AccordionProps) {
                 isOpen ? 'max-h-[500px] opacity-100 pb-4' : 'max-h-0 opacity-0',
               )}
             >
-              <div className="px-1 text-sm text-charcoal-600 leading-relaxed prose prose-sm max-w-none">
+              <div className="px-1 text-sm text-brand-text-muted leading-relaxed prose prose-sm max-w-none">
                 {item.content}
               </div>
             </div>
