@@ -27,7 +27,10 @@ import { createAdminClient } from '@/lib/supabase/admin'
 const PLATFORM_DOMAINS = [
   'localhost',
   '127.0.0.1',
-  'vercel.app',
+  // vercel.app is intentionally excluded: Vercel deployment URLs like
+  // system-for-locals.vercel.app are NOT tenant subdomains — the project
+  // name prefix is meaningless for tenant resolution and would bypass
+  // the NEXT_PUBLIC_DEFAULT_TENANT_SLUG fallback.
   // Add your production platform domain here, e.g.:
   // 'cafepanel.com',
   ...(process.env.NEXT_PUBLIC_PLATFORM_DOMAIN ? [process.env.NEXT_PUBLIC_PLATFORM_DOMAIN] : []),
