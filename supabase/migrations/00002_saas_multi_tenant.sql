@@ -346,6 +346,7 @@ CREATE TABLE campaigns (
   start_date DATE,
   end_date DATE,
   is_active BOOLEAN DEFAULT TRUE,
+  sort_order INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(tenant_id, slug)

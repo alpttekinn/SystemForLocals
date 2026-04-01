@@ -159,7 +159,7 @@ ON CONFLICT (tenant_id, slug) DO NOTHING;
 -- =========================
 
 -- Kahvaltı
-INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_visible, is_featured)
 SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
 FROM menu_categories c,
 (VALUES
@@ -172,7 +172,7 @@ WHERE c.tenant_id = v_tenant_id AND c.slug = 'kahvalti'
 ON CONFLICT DO NOTHING;
 
 -- Başlangıçlar
-INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_visible, is_featured)
 SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
 FROM menu_categories c,
 (VALUES
@@ -185,7 +185,7 @@ WHERE c.tenant_id = v_tenant_id AND c.slug = 'baslangiclar'
 ON CONFLICT DO NOTHING;
 
 -- Ana Yemekler
-INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_visible, is_featured)
 SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
 FROM menu_categories c,
 (VALUES
@@ -198,7 +198,7 @@ WHERE c.tenant_id = v_tenant_id AND c.slug = 'ana-yemekler'
 ON CONFLICT DO NOTHING;
 
 -- Pizzalar
-INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_visible, is_featured)
 SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
 FROM menu_categories c,
 (VALUES
@@ -211,7 +211,7 @@ WHERE c.tenant_id = v_tenant_id AND c.slug = 'pizzalar'
 ON CONFLICT DO NOTHING;
 
 -- Salatalar
-INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_visible, is_featured)
 SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
 FROM menu_categories c,
 (VALUES
@@ -223,7 +223,7 @@ WHERE c.tenant_id = v_tenant_id AND c.slug = 'salatalar'
 ON CONFLICT DO NOTHING;
 
 -- Kahveler
-INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_visible, is_featured)
 SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
 FROM menu_categories c,
 (VALUES
@@ -237,7 +237,7 @@ WHERE c.tenant_id = v_tenant_id AND c.slug = 'kahveler'
 ON CONFLICT DO NOTHING;
 
 -- Soğuk İçecekler
-INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_visible, is_featured)
 SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
 FROM menu_categories c,
 (VALUES
@@ -251,7 +251,7 @@ WHERE c.tenant_id = v_tenant_id AND c.slug = 'soguk-icecekler'
 ON CONFLICT DO NOTHING;
 
 -- Sıcak İçecekler
-INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_visible, is_featured)
 SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
 FROM menu_categories c,
 (VALUES
@@ -264,7 +264,7 @@ WHERE c.tenant_id = v_tenant_id AND c.slug = 'sicak-icecekler'
 ON CONFLICT DO NOTHING;
 
 -- Tatlılar
-INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_available, is_featured)
+INSERT INTO menu_items (tenant_id, category_id, name, description, price, sort_order, is_visible, is_featured)
 SELECT v_tenant_id, c.id, v.name, v.description, v.price, v.sort_order, TRUE, v.is_featured
 FROM menu_categories c,
 (VALUES
