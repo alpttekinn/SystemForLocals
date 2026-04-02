@@ -51,8 +51,8 @@ export function Header() {
     <header className={cn(
       'sticky top-0 z-50 transition-all duration-300',
       scrolled
-        ? 'bg-brand-primary-dark backdrop-blur-md shadow-nav'
-        : 'bg-brand-primary-dark/95 backdrop-blur-sm',
+        ? 'bg-brand-primary-dark shadow-nav'
+        : 'bg-brand-primary-dark',
     )}>
       <Container>
         <div className="flex items-center justify-between h-16 md:h-20">
