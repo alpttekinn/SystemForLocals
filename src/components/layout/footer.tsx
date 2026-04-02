@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Phone, Instagram } from 'lucide-react'
+import { MapPin, Phone, Instagram, MessageCircle, Facebook, Youtube } from 'lucide-react'
 import { PUBLIC_NAV_LINKS, getActiveNavLinks } from '@/lib/constants'
 import { useTenant } from '@/lib/tenant'
 import { Container } from '@/components/ui/container'
@@ -16,6 +16,13 @@ export function Footer() {
     PUBLIC_NAV_LINKS,
     features as unknown as Record<string, boolean>,
   )
+
+  const socialLinks = [
+    contact.instagram_url && { icon: Instagram, href: contact.instagram_url, label: 'Instagram' },
+    contact.whatsapp && { icon: MessageCircle, href: `https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}`, label: 'WhatsApp' },
+    contact.facebook_url && { icon: Facebook, href: contact.facebook_url, label: 'Facebook' },
+    contact.youtube_url && { icon: Youtube, href: contact.youtube_url, label: 'YouTube' },
+  ].filter(Boolean) as { icon: typeof Instagram; href: string; label: string }[]
 
   return (
     <footer className="bg-brand-primary-dark text-white/80">
@@ -81,7 +88,13 @@ export function Footer() {
                 {contact.address && (
                   <li className="flex items-start gap-2.5">
                     <MapPin size={16} className="shrink-0 mt-0.5 text-brand-accent" />
-                    <span className="text-sm">{contact.address}</span>
+                    {contact.maps_url ? (
+                      <a href={contact.maps_url} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-white transition-colors">
+                        {contact.address}
+                      </a>
+                    ) : (
+                      <span className="text-sm">{contact.address}</span>
+                    )}
                   </li>
                 )}
                 {contact.phone && (
@@ -95,23 +108,41 @@ export function Footer() {
                     </a>
                   </li>
                 )}
+                {contact.whatsapp && (
+                  <li className="flex items-center gap-2.5">
+                    <MessageCircle size={16} className="shrink-0 text-green-400" />
+                    <a
+                      href={`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm hover:text-white transition-colors"
+                    >
+                      WhatsApp
+                    </a>
+                  </li>
+                )}
               </ul>
             </div>
 
             {/* Social + reservation CTA */}
             <div>
-              {contact.instagram_url && (
+              {socialLinks.length > 0 && (
                 <>
                   <h3 className="font-serif text-base font-semibold text-white mb-4">Bizi Takip Edin</h3>
-                  <a
-                    href={contact.instagram_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm hover:text-white transition-colors mb-6"
-                  >
-                    <Instagram size={18} />
-                    Instagram
-                  </a>
+                  <div className="flex items-center gap-3 mb-6">
+                    {socialLinks.map((social) => (
+                      <a
+                        key={social.label}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                        aria-label={social.label}
+                      >
+                        <social.icon size={16} />
+                      </a>
+                    ))}
+                  </div>
                 </>
               )}
 

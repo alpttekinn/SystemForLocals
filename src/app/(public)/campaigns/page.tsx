@@ -15,6 +15,10 @@ import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { RevealProvider } from '@/components/reveal-provider'
 
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
 export default async function CampaignsPage() {
   const headersList = await headers()
   const slug = headersList.get('x-tenant-slug')
@@ -45,36 +49,48 @@ export default async function CampaignsPage() {
             description="Fırsat ve etkinliklerimiz için bizi takipte kalın."
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto reveal-stagger">
-            {campaigns.map((campaign) => (
-              <Link key={campaign.id} href={`/campaigns/${campaign.slug}`} className="reveal">
-                <Card hover className="h-full overflow-hidden" padding="none">
-                  {campaign.image_url && (
-                    <div className="aspect-video relative overflow-hidden">
-                      <Image
-                        src={campaign.image_url}
-                        alt={campaign.image_alt || campaign.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                    </div>
-                  )}
-                  <div className="p-5">
-                    <h3 className="font-serif text-lg font-semibold text-brand-text">
-                      {campaign.title}
-                    </h3>
-                    {campaign.description && (
-                      <p className="text-sm text-brand-text-muted mt-2 line-clamp-3">
-                        {campaign.description}
-                      </p>
+          <>
+            <p className="text-center text-sm text-brand-text-muted mb-6">{campaigns.length} aktif kampanya</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto reveal-stagger">
+              {campaigns.map((campaign) => (
+                <Link key={campaign.id} href={`/campaigns/${campaign.slug}`} className="reveal group">
+                  <Card hover className="h-full overflow-hidden" padding="none">
+                    {campaign.image_url && (
+                      <div className="aspect-video relative overflow-hidden">
+                        <Image
+                          src={campaign.image_url}
+                          alt={campaign.image_alt || campaign.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                        {/* End date badge */}
+                        {campaign.end_date && (
+                          <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg">
+                            Son: {formatDate(campaign.end_date)}
+                          </div>
+                        )}
+                      </div>
                     )}
-                  </div>
-                </Card>
-              </Link>
-            ))}
-          </div>
+                    <div className="p-5">
+                      <h3 className="font-serif text-lg font-semibold text-brand-text group-hover:text-brand-primary transition-colors">
+                        {campaign.title}
+                      </h3>
+                      {campaign.description && (
+                        <p className="text-sm text-brand-text-muted mt-2 line-clamp-3">
+                          {campaign.description}
+                        </p>
+                      )}
+                      <span className="inline-block mt-3 text-sm font-semibold text-brand-primary">
+                        Detayları Gör &rarr;
+                      </span>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </>
         )}
       </Container>
     </Section>

@@ -41,7 +41,7 @@ export default async function MenuPage() {
 
       {/* Category quick-nav */}
       {categories.length > 0 && (
-        <div className="sticky top-16 md:top-20 z-30 bg-brand-surface/95 backdrop-blur-md border-b border-brand-primary/10 shadow-sm">
+        <div className="sticky top-[90px] md:top-[106px] z-30 bg-brand-surface/95 backdrop-blur-md border-b border-brand-primary/10 shadow-sm">
           <Container>
             <nav className="flex gap-1 overflow-x-auto py-3 scrollbar-hide" aria-label="Menü kategorileri">
               {categories.map((cat) => (

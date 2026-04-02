@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PUBLIC_NAV_LINKS, getActiveNavLinks } from '@/lib/constants'
 import { useTenant } from '@/lib/tenant'
@@ -33,11 +33,26 @@ export function Header() {
   }, [])
 
   return (
+    <>
+    {/* Announcement bar */}
+    <div className="bg-brand-secondary text-white text-center py-1.5 text-xs font-medium tracking-wide">
+      <Container className="flex items-center justify-center gap-3">
+        {tenant.contact.phone && (
+          <a href={`tel:${tenant.contact.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+            <Phone size={12} />
+            <span>{tenant.contact.phone}</span>
+          </a>
+        )}
+        <span className="hidden sm:inline opacity-60">|</span>
+        <span className="hidden sm:inline">Her gün açık — Haftanın 7 günü hizmetinizdeyiz</span>
+      </Container>
+    </div>
+
     <header className={cn(
       'sticky top-0 z-50 transition-all duration-300',
       scrolled
-        ? 'bg-brand-primary-dark/95 backdrop-blur-md shadow-nav'
-        : 'bg-brand-primary-dark/90 backdrop-blur-sm',
+        ? 'bg-brand-primary-dark backdrop-blur-md shadow-nav'
+        : 'bg-brand-primary-dark/95 backdrop-blur-sm',
     )}>
       <Container>
         <div className="flex items-center justify-between h-16 md:h-20">
@@ -60,7 +75,7 @@ export function Header() {
           </Link>
 
           {/* Desktop navigation */}
-          <nav className="hidden lg:flex items-center gap-0.5" aria-label="Ana menü">
+          <nav className="hidden lg:flex items-center gap-1" aria-label="Ana menü">
             {navLinks.map((link) => {
               const isActive = pathname === link.href
               return (
@@ -70,8 +85,8 @@ export function Header() {
                   className={cn(
                     'px-3 py-2 text-sm font-sans font-medium rounded-button transition-colors duration-200',
                     isActive
-                      ? 'text-brand-secondary'
-                      : 'text-white/90 hover:text-white hover:bg-white/10',
+                      ? 'text-brand-secondary bg-white/10'
+                      : 'text-white hover:text-brand-secondary hover:bg-white/5',
                   )}
                 >
                   {link.label}
@@ -105,8 +120,8 @@ export function Header() {
       {/* Mobile navigation */}
       <div
         className={cn(
-          'lg:hidden overflow-hidden transition-all duration-300 bg-brand-primary-dark/[0.98] border-t border-brand-primary/50',
-          mobileOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0',
+          'lg:hidden overflow-hidden transition-all duration-300 bg-brand-primary-dark border-t border-white/10',
+          mobileOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0',
         )}
       >
         <Container>
@@ -119,10 +134,10 @@ export function Header() {
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    'px-3 py-2.5 text-base font-sans font-medium rounded-button transition-colors',
+                    'px-4 py-3 text-base font-sans font-medium rounded-button transition-colors',
                     isActive
-                      ? 'text-brand-secondary bg-white/5'
-                      : 'text-white/90 hover:text-white hover:bg-white/10',
+                      ? 'text-brand-secondary bg-white/10'
+                      : 'text-white hover:text-brand-secondary hover:bg-white/5',
                   )}
                 >
                   {link.label}
@@ -130,7 +145,7 @@ export function Header() {
               )
             })}
             {showReservations && (
-              <div className="pt-2 mt-2 border-t border-brand-primary/50">
+              <div className="pt-3 mt-3 border-t border-white/10">
                 <Link href="/reservation" onClick={() => setMobileOpen(false)}>
                   <Button variant="cta" fullWidth>
                     {ctaText}
@@ -142,5 +157,6 @@ export function Header() {
         </Container>
       </div>
     </header>
+    </>
   )
 }

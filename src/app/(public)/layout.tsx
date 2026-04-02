@@ -1,6 +1,7 @@
 import { headers } from 'next/headers'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { MobileCTABar } from '@/components/layout/mobile-cta-bar'
 import { TenantProvider } from '@/lib/tenant'
 import { resolveTenantConfig, generateThemeVars } from '@/lib/tenant'
 import { notFound } from 'next/navigation'
@@ -33,8 +34,9 @@ export default async function PublicLayout({
           Ana iceriğe atla
         </a>
         <Header />
-        <main id="main-content" className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1 pb-16 md:pb-0">{children}</main>
         <Footer />
+        <MobileCTABar />
         <TenantSwitcher />
       </TenantProvider>
     </div>

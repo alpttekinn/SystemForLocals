@@ -256,6 +256,11 @@
   .aspect-campaign {
     aspect-ratio: 16 / 10;
   }
+
+  /* Safe area for mobile bottom bar */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
 
 /* =============================================================================

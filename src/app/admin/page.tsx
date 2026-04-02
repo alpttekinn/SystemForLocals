@@ -4,18 +4,24 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CalendarDays, Users, Coffee, Clock, MessageSquare, Bell } from 'lucide-react'
+import {
+  CalendarDays, Users, Coffee, Clock, MessageSquare, Bell,
+  Image as ImageIcon, Megaphone, Mail, TrendingUp, ArrowRight, BarChart3,
+} from 'lucide-react'
 import { useTenantOptional } from '@/lib/tenant'
 
 import type { Reservation } from '@/types'
 
 interface DashboardStats {
   todayReservations: number
-  pendingCount: number
   todayGuests: number
-  menuItems: number
+  pendingReservations: number
+  totalReservations30d: number
   newEvents: number
-  unreadContacts: number
+  contacts30d: number
+  menuItems: number
+  galleryItems: number
+  activeCampaigns: number
 }
 
 export default function AdminDashboardPage() {
@@ -26,24 +32,16 @@ export default function AdminDashboardPage() {
 
   const loadData = useCallback(async () => {
     try {
-      const [resRes] = await Promise.all([
+      const [statsRes, resRes] = await Promise.all([
+        fetch('/api/admin/stats'),
         fetch('/api/reservations?limit=5'),
-        fetch('/api/events?limit=5'),
       ])
+      if (statsRes.ok) {
+        setStats(await statsRes.json())
+      }
       if (resRes.ok) {
         const data = await resRes.json()
         setRecentReservations(data.data || [])
-
-        const today = new Date().toISOString().split('T')[0]
-        const todayRes = (data.data || []).filter((r: Reservation) => r.reservation_date === today)
-        setStats({
-          todayReservations: todayRes.length,
-          pendingCount: (data.data || []).filter((r: Reservation) => r.status === 'pending').length,
-          todayGuests: todayRes.reduce((s: number, r: Reservation) => s + r.party_size, 0),
-          menuItems: 0,
-          newEvents: 0,
-          unreadContacts: 0,
-        })
       }
     } catch {
       // Silently fail for dashboard
@@ -71,22 +69,28 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-section-heading text-charcoal-900">Yönetim Paneli</h1>
-        <p className="text-body text-charcoal-500 mt-1">
-          {businessName} — Genel bakış
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-section-heading text-charcoal-900">Yönetim Paneli</h1>
+          <p className="text-body text-charcoal-500 mt-1">
+            {businessName} — Genel bakış
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-charcoal-400">
+          <BarChart3 size={14} />
+          Son güncelleme: Şimdi
+        </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Primary Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="flex items-center gap-4 py-4">
             <div className="p-3 rounded-button bg-forest-100">
               <CalendarDays size={20} className="text-forest-700" />
             </div>
             <div>
-              <p className="text-caption text-charcoal-500">Bugünkü Rezervasyonlar</p>
+              <p className="text-caption text-charcoal-500">Bugünkü Rez.</p>
               <p className="text-xl font-semibold text-charcoal-900">{stats?.todayReservations ?? '—'}</p>
             </div>
           </CardContent>
@@ -98,7 +102,7 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <p className="text-caption text-charcoal-500">Bekleyen Onay</p>
-              <p className="text-xl font-semibold text-charcoal-900">{stats?.pendingCount ?? '—'}</p>
+              <p className="text-xl font-semibold text-charcoal-900">{stats?.pendingReservations ?? '—'}</p>
             </div>
           </CardContent>
         </Card>
@@ -113,20 +117,62 @@ export default function AdminDashboardPage() {
             </div>
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="flex items-center gap-4 py-4">
+            <div className="p-3 rounded-button bg-blue-100">
+              <TrendingUp size={20} className="text-blue-700" />
+            </div>
+            <div>
+              <p className="text-caption text-charcoal-500">Son 30 Gün Rez.</p>
+              <p className="text-xl font-semibold text-charcoal-900">{stats?.totalReservations30d ?? '—'}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Secondary Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Card className="text-center py-3">
+          <MessageSquare size={18} className="mx-auto text-orange-500 mb-1" />
+          <p className="text-lg font-semibold text-charcoal-900">{stats?.newEvents ?? '—'}</p>
+          <p className="text-xs text-charcoal-500">Yeni Etkinlik Talebi</p>
+        </Card>
+        <Card className="text-center py-3">
+          <Mail size={18} className="mx-auto text-indigo-500 mb-1" />
+          <p className="text-lg font-semibold text-charcoal-900">{stats?.contacts30d ?? '—'}</p>
+          <p className="text-xs text-charcoal-500">İletişim (30 Gün)</p>
+        </Card>
+        <Card className="text-center py-3">
+          <Coffee size={18} className="mx-auto text-amber-600 mb-1" />
+          <p className="text-lg font-semibold text-charcoal-900">{stats?.menuItems ?? '—'}</p>
+          <p className="text-xs text-charcoal-500">Menü Ürünü</p>
+        </Card>
+        <Card className="text-center py-3">
+          <Megaphone size={18} className="mx-auto text-pink-500 mb-1" />
+          <p className="text-lg font-semibold text-charcoal-900">{stats?.activeCampaigns ?? '—'}</p>
+          <p className="text-xs text-charcoal-500">Aktif Kampanya</p>
+        </Card>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
-          { href: '/admin/reservations', title: 'Rezervasyonlar', icon: CalendarDays },
+          { href: '/admin/reservations', title: 'Rezervasyonlar', icon: CalendarDays, count: stats?.pendingReservations },
           { href: '/admin/menu', title: 'Menü', icon: Coffee },
-          { href: '/admin/events', title: 'Etkinlikler', icon: MessageSquare },
+          { href: '/admin/events', title: 'Etkinlikler', icon: MessageSquare, count: stats?.newEvents },
+          { href: '/admin/gallery', title: 'Galeri', icon: ImageIcon },
+          { href: '/admin/campaigns', title: 'Kampanyalar', icon: Megaphone },
           { href: '/admin/settings', title: 'Ayarlar', icon: Bell },
         ].map((a) => (
           <Link key={a.href} href={a.href}>
-            <Card hover className="flex items-center gap-3 cursor-pointer">
-              <a.icon size={18} className="text-brand-primary shrink-0" />
-              <span className="text-sm font-medium text-charcoal-800">{a.title}</span>
+            <Card hover className="flex flex-col items-center gap-2 cursor-pointer py-4 relative">
+              <a.icon size={20} className="text-brand-primary" />
+              <span className="text-xs font-medium text-charcoal-800">{a.title}</span>
+              {a.count && a.count > 0 ? (
+                <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center font-bold">
+                  {a.count}
+                </span>
+              ) : null}
             </Card>
           </Link>
         ))}
@@ -140,8 +186,8 @@ export default function AdminDashboardPage() {
               <CardTitle>Son Rezervasyonlar</CardTitle>
               <CardDescription>En son 5 rezervasyon</CardDescription>
             </div>
-            <Link href="/admin/reservations" className="text-sm text-brand-primary hover:underline">
-              Tümünü Gör →
+            <Link href="/admin/reservations" className="text-sm text-brand-primary hover:underline flex items-center gap-1">
+              Tümünü Gör <ArrowRight size={14} />
             </Link>
           </div>
         </CardHeader>

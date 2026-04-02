@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import Link from 'next/link'
 import { useTenant } from '@/lib/tenant'
 import { Container } from '@/components/ui/container'
 import { Section } from '@/components/ui/section'
@@ -8,11 +9,11 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
 import { Loading } from '@/components/ui/loading'
 import { FormField } from '@/components/ui/form-field'
 import type { DayAvailability, TimeSlot } from '@/types'
 import { toISODateString } from '@/lib/utils'
+import { CalendarCheck, Clock, Users, CheckCircle } from 'lucide-react'
 
 type BookingStep = 'date' | 'slot' | 'form' | 'confirm'
 
@@ -169,26 +170,32 @@ export default function ReservationPage() {
         <Container size="narrow">
 
         {/* Step indicators */}
-        <div className="flex items-center justify-center gap-2 mb-8" role="navigation" aria-label="Rezervasyon adımları">
+        <div className="flex items-center justify-center mb-10" role="navigation" aria-label="Rezervasyon adımları">
           {(['date', 'slot', 'form', 'confirm'] as BookingStep[]).map((s, i) => {
-            const labels = ['Tarih', 'Saat', 'Bilgiler', 'Onay']
+            const labels = ['Tarih Seçin', 'Saat Seçin', 'Bilgileriniz', 'Onay']
+            const icons = [CalendarCheck, Clock, Users, CheckCircle]
+            const Icon = icons[i]
             const isActive = s === step
             const isPast = ['date', 'slot', 'form', 'confirm'].indexOf(s) < ['date', 'slot', 'form', 'confirm'].indexOf(step)
             return (
-              <div key={s} className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
-                  isActive
-                    ? 'bg-brand-primary text-white'
-                    : isPast
-                      ? 'bg-brand-primary/20 text-brand-primary'
-                      : 'bg-brand-surface text-brand-text-muted'
-                }`}>
-                  {isPast ? '✓' : i + 1}
+              <div key={s} className="flex items-center">
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    isActive
+                      ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/30 scale-110'
+                      : isPast
+                        ? 'bg-brand-primary/20 text-brand-primary'
+                        : 'bg-brand-surface text-brand-text-muted border border-brand-primary/10'
+                  }`}>
+                    {isPast ? <CheckCircle size={18} /> : <Icon size={18} />}
+                  </div>
+                  <span className={`text-[10px] sm:text-xs font-medium whitespace-nowrap ${isActive ? 'text-brand-primary font-semibold' : 'text-brand-text-muted'}`}>
+                    {labels[i]}
+                  </span>
                 </div>
-                <span className={`text-xs hidden sm:inline ${isActive ? 'font-semibold text-brand-text' : 'text-brand-text-muted'}`}>
-                  {labels[i]}
-                </span>
-                {i < 3 && <div className="w-6 h-px bg-brand-border hidden sm:block" />}
+                {i < 3 && (
+                  <div className={`w-8 sm:w-12 h-0.5 mx-1 sm:mx-2 mb-5 rounded-full transition-colors ${isPast ? 'bg-brand-primary/30' : 'bg-brand-surface-alt'}`} />
+                )}
               </div>
             )
           })}
@@ -196,8 +203,14 @@ export default function ReservationPage() {
 
         {/* STEP 1: Date Selection */}
         {step === 'date' && (
-          <Card>
-            <h3 className="font-serif text-lg font-semibold text-brand-text mb-4">Tarih Seçin</h3>
+          <Card className="max-w-md mx-auto">
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-brand-primary/10 flex items-center justify-center">
+                <CalendarCheck size={24} className="text-brand-primary" />
+              </div>
+              <h3 className="font-serif text-xl font-semibold text-brand-text">Tarih Seçin</h3>
+              <p className="text-sm text-brand-text-muted mt-1">Ziyaret etmek istediğiniz tarihi seçin</p>
+            </div>
             <FormField label="Rezervasyon Tarihi">
               <Input
                 type="date"
@@ -205,6 +218,7 @@ export default function ReservationPage() {
                 max={maxDate}
                 value={selectedDate}
                 onChange={(e) => handleDateSelect(e.target.value)}
+                className="text-center text-lg"
               />
             </FormField>
           </Card>
@@ -212,16 +226,21 @@ export default function ReservationPage() {
 
         {/* STEP 2: Slot Selection */}
         {step === 'slot' && (
-          <Card>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-serif text-lg font-semibold text-brand-text">
-                Saat Seçin
-              </h3>
-              <button onClick={() => setStep('date')} className="text-sm text-brand-primary hover:underline">
-                Tarihi Değiştir
+          <Card className="max-w-lg mx-auto">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center">
+                  <Clock size={18} className="text-brand-primary" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg font-semibold text-brand-text">Saat Seçin</h3>
+                  <p className="text-xs text-brand-text-muted">{formatDate(selectedDate)}</p>
+                </div>
+              </div>
+              <button onClick={() => setStep('date')} className="text-sm text-brand-primary hover:underline font-medium">
+                Değiştir
               </button>
             </div>
-            <p className="text-sm text-brand-text-muted mb-4">{formatDate(selectedDate)}</p>
 
             {loadingSlots ? (
               <Loading />
@@ -242,23 +261,23 @@ export default function ReservationPage() {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-4">
                 {availability.slots.map((slot) => (
                   <button
                     key={slot.time}
                     disabled={!slot.available}
                     onClick={() => handleSlotSelect(slot)}
-                    className={`p-3 rounded-card text-sm font-medium border transition-all ${
+                    className={`p-3 rounded-card text-sm font-medium border-2 transition-all duration-200 ${
                       slot.available
-                        ? 'border-brand-border hover:border-brand-primary hover:bg-brand-primary/5 text-brand-text cursor-pointer'
-                        : 'border-brand-border bg-brand-surface text-brand-text-muted cursor-not-allowed'
-                    } ${selectedSlot?.time === slot.time ? 'border-brand-primary bg-brand-primary/10 ring-2 ring-brand-primary/20' : ''}`}
+                        ? 'border-brand-primary/10 hover:border-brand-primary hover:bg-brand-primary/5 text-brand-text cursor-pointer hover:shadow-card'
+                        : 'border-brand-surface bg-brand-surface text-brand-text-muted/50 cursor-not-allowed line-through'
+                    } ${selectedSlot?.time === slot.time ? 'border-brand-primary bg-brand-primary/10 ring-2 ring-brand-primary/20 shadow-card' : ''}`}
                     aria-label={`${slot.time} - ${slot.available ? `${slot.remaining} kişilik yer var` : 'Dolu'}`}
                   >
-                    <div>{slot.time}</div>
-                    <div className="text-[10px] mt-0.5">
+                    <div className="font-semibold">{slot.time}</div>
+                    <div className="text-[10px] mt-1">
                       {slot.available ? (
-                        <span className="text-green-600">{slot.remaining} kişi</span>
+                        <span className="text-green-600 font-medium">{slot.remaining} kişi müsait</span>
                       ) : (
                         <span className="text-red-400">Dolu</span>
                       )}
@@ -272,17 +291,30 @@ export default function ReservationPage() {
 
         {/* STEP 3: Guest Form */}
         {step === 'form' && selectedSlot && (
-          <Card>
+          <Card className="max-w-lg mx-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-serif text-lg font-semibold text-brand-text">Bilgileriniz</h3>
-              <button onClick={() => setStep('slot')} className="text-sm text-brand-primary hover:underline">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center">
+                  <Users size={18} className="text-brand-primary" />
+                </div>
+                <h3 className="font-serif text-lg font-semibold text-brand-text">Bilgileriniz</h3>
+              </div>
+              <button onClick={() => setStep('slot')} className="text-sm text-brand-primary hover:underline font-medium">
                 Saati Değiştir
               </button>
             </div>
 
-            <div className="flex gap-3 mb-6 p-3 bg-brand-surface rounded-card">
-              <Badge variant="info">{formatDate(selectedDate)}</Badge>
-              <Badge variant="gold">{selectedSlot.time}</Badge>
+            {/* Selected summary */}
+            <div className="flex gap-3 mb-6 p-4 bg-brand-gradient-subtle rounded-card border border-brand-primary/10">
+              <div className="flex items-center gap-2">
+                <CalendarCheck size={14} className="text-brand-primary" />
+                <span className="text-sm font-medium text-brand-text">{formatDate(selectedDate)}</span>
+              </div>
+              <div className="w-px bg-brand-primary/20" />
+              <div className="flex items-center gap-2">
+                <Clock size={14} className="text-brand-primary" />
+                <span className="text-sm font-medium text-brand-text">{selectedSlot.time}</span>
+              </div>
             </div>
 
             {result && !result.ok && (
@@ -355,37 +387,47 @@ export default function ReservationPage() {
 
         {/* STEP 4: Confirmation */}
         {step === 'confirm' && result?.ok && (
-          <Card className="text-center">
-            <div className="text-4xl mb-3">✅</div>
-            <h3 className="font-serif text-xl font-semibold text-brand-text mb-2">
+          <Card className="text-center max-w-md mx-auto">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+              <CheckCircle size={32} className="text-green-600" />
+            </div>
+            <h3 className="font-serif text-2xl font-semibold text-brand-text mb-2">
               Rezervasyonunuz Alındı!
             </h3>
             <p className="text-sm text-brand-text-muted mb-6">
               {businessName} sizi ağırlamaktan mutluluk duyacak.
             </p>
 
-            <div className="bg-brand-surface rounded-card p-4 mb-6 text-left space-y-2">
+            <div className="bg-brand-gradient-subtle rounded-card p-5 mb-6 text-left space-y-3 border border-brand-primary/10">
               <div className="flex justify-between text-sm">
-                <span className="text-brand-text-muted">Tarih:</span>
-                <span className="font-medium text-brand-text">{formatDate(selectedDate)}</span>
+                <span className="text-brand-text-muted flex items-center gap-2"><CalendarCheck size={14} /> Tarih</span>
+                <span className="font-semibold text-brand-text">{formatDate(selectedDate)}</span>
               </div>
+              <div className="h-px bg-brand-primary/5" />
               <div className="flex justify-between text-sm">
-                <span className="text-brand-text-muted">Saat:</span>
-                <span className="font-medium text-brand-text">{selectedSlot?.time}</span>
+                <span className="text-brand-text-muted flex items-center gap-2"><Clock size={14} /> Saat</span>
+                <span className="font-semibold text-brand-text">{selectedSlot?.time}</span>
               </div>
+              <div className="h-px bg-brand-primary/5" />
               <div className="flex justify-between text-sm">
-                <span className="text-brand-text-muted">Kişi:</span>
-                <span className="font-medium text-brand-text">{form.party_size}</span>
+                <span className="text-brand-text-muted flex items-center gap-2"><Users size={14} /> Kişi Sayısı</span>
+                <span className="font-semibold text-brand-text">{form.party_size}</span>
               </div>
+              <div className="h-px bg-brand-primary/5" />
               <div className="flex justify-between text-sm">
-                <span className="text-brand-text-muted">Ad Soyad:</span>
-                <span className="font-medium text-brand-text">{form.guest_name}</span>
+                <span className="text-brand-text-muted">Ad Soyad</span>
+                <span className="font-semibold text-brand-text">{form.guest_name}</span>
               </div>
             </div>
 
-            <Button variant="secondary" onClick={reset}>
-              Yeni Rezervasyon Yap
-            </Button>
+            <div className="flex flex-col gap-3">
+              <Button variant="primary" onClick={reset}>
+                Yeni Rezervasyon Yap
+              </Button>
+              <Link href="/" className="text-sm text-brand-text-muted hover:text-brand-primary transition-colors">
+                Ana Sayfaya Dön
+              </Link>
+            </div>
           </Card>
         )}
       </Container>
