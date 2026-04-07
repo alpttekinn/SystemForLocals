@@ -39,6 +39,11 @@ export const env = {
   gemini: {
     apiKey: () => optional('GEMINI_API_KEY'),
   },
+  twilio: {
+    accountSid: () => optional('TWILIO_ACCOUNT_SID'),
+    authToken: () => optional('TWILIO_AUTH_TOKEN'),
+    whatsappNumber: () => optional('TWILIO_WHATSAPP_NUMBER'),
+  },
 } as const
 
 /**
