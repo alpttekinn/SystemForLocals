@@ -143,7 +143,7 @@ export async function generateFirstResponse(
   settings: WhatsAppSettings,
   tenantContext: TenantContext,
 ): Promise<AiResult> {
-  const apiKey = env.gemini.apiKey()
+  const apiKey = env.gemini.apiKey()?.trim()
   if (!apiKey) {
     return {
       error: 'GEMINI_API_KEY not configured',

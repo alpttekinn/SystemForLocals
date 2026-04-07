@@ -10,6 +10,7 @@ import {
   incrementMessageCount,
 } from '@/lib/data/whatsapp'
 import { generateFirstResponse, isAiError } from '@/lib/whatsapp/ai-response'
+import { notifyBusinessOwner } from '@/lib/whatsapp/twilio-outbound'
 import { getMenuCategories } from '@/lib/data/menu'
 import { getActiveCampaigns } from '@/lib/data/campaigns'
 import { DAYS_OF_WEEK } from '@/lib/constants'
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Create or reuse conversation
+  const isNewConversation = !conversation_id
   let convId = conversation_id
   if (!convId) {
     const conv = await createWhatsAppConversation(tenantId, {
@@ -137,11 +139,16 @@ export async function POST(request: NextRequest) {
     escalated = true
   }
 
+  // Fire-and-forget: notify business owner on WhatsApp for new conversations
+  // (only first message, not every reply)
+  if (isNewConversation && settings.phone_number) {
+    notifyBusinessOwner(settings.phone_number, message, replyText, escalated).catch(() => {})
+  }
+
   return NextResponse.json({
     reply: replyText,
     conversation_id: convId,
     escalated,
-    // If escalated, client can show WhatsApp direct link
     whatsapp_number: escalated ? settings.phone_number : null,
   })
 }
