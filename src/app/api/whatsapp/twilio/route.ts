@@ -72,7 +72,10 @@ export async function POST(request: NextRequest) {
   // Validate Twilio signature (skip if auth token not configured — dev/sandbox only)
   if (authToken) {
     const signature = request.headers.get('x-twilio-signature') || ''
-    const url = `${process.env.NEXT_PUBLIC_PLATFORM_URL}/api/whatsapp/twilio`
+    // Use the actual request URL for signature validation (Twilio signs the exact URL it POSTs to)
+    const proto = request.headers.get('x-forwarded-proto') || 'https'
+    const host = request.headers.get('host') || ''
+    const url = `${proto}://${host}/api/whatsapp/twilio`
     if (!validateTwilioSignature(authToken, url, params, signature)) {
       return new Response('Forbidden', { status: 403 })
     }
