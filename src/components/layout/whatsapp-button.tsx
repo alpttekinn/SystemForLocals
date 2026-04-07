@@ -204,7 +204,7 @@ export function WhatsAppButton() {
                     className="flex items-center gap-2 bg-[#25D366] text-white text-xs font-medium px-3 py-2 rounded-xl shadow-sm hover:bg-[#20b95a] transition-colors"
                   >
                     <ExternalLink size={12} />
-                    WhatsApp'ta devam et
+                    WhatsApp&apos;ta devam et
                   </a>
                 </div>
               )}
@@ -322,7 +322,7 @@ export function WhatsAppButton() {
                     className="flex items-center gap-2 bg-[#25D366] text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-sm"
                   >
                     <ExternalLink size={14} />
-                    WhatsApp'ta devam et
+                    WhatsApp&apos;ta devam et
                   </a>
                 </div>
               )}
