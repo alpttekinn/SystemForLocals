@@ -98,6 +98,11 @@ export interface TenantBranding {
   hero_image_url: string | null
   hero_cta_text: string
   footer_text: string | null
+  // --- Content blocks (migration 00003) ---
+  announcement_bar_text: string | null
+  about_story: string | null
+  venue_highlights: string[] | null
+  trust_stats: Array<{ label: string; value: string }> | null
   created_at: string
   updated_at: string
 }
@@ -156,6 +161,7 @@ export interface TenantFeatures {
   contact_form_enabled: boolean
   sms_enabled: boolean
   email_notifications_enabled: boolean
+  whatsapp_enabled: boolean
   created_at: string
   updated_at: string
 }
@@ -170,6 +176,7 @@ export interface TenantConfig {
   contact: TenantContact
   seo: TenantSeo
   features: TenantFeatures
+  businessHours: BusinessHours[]
 }
 
 // =============================================================================
@@ -391,6 +398,64 @@ export interface ContactSubmission {
   phone: string | null
   message: string
   is_read: boolean
+  created_at: string
+}
+
+// =============================================================================
+// WhatsApp Communication + AI (tenant-scoped)
+// =============================================================================
+
+export type WhatsAppConversationStatus =
+  | 'new' | 'ai_replied' | 'awaiting_human' | 'human_replied' | 'closed'
+
+export type WhatsAppAllowedTopic =
+  | 'opening_hours' | 'address' | 'menu_categories' | 'reservation_guidance'
+  | 'event_inquiry' | 'contact_info' | 'campaign_summary'
+
+export interface WhatsAppSettings {
+  id: string
+  tenant_id: string
+  enabled: boolean
+  phone_number: string | null
+  cta_label: string
+  ai_enabled: boolean
+  ai_business_tone: string
+  ai_allowed_topics: WhatsAppAllowedTopic[]
+  ai_fallback_text: string
+  ai_escalation_text: string
+  created_at: string
+  updated_at: string
+}
+
+export interface WhatsAppConversation {
+  id: string
+  tenant_id: string
+  customer_phone: string | null
+  customer_name: string | null
+  source: string
+  status: WhatsAppConversationStatus
+  ai_used: boolean
+  last_message_preview: string | null
+  message_count: number
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+export type WhatsAppMessageDirection = 'inbound' | 'outbound'
+export type WhatsAppSenderType = 'customer' | 'ai' | 'human'
+
+export interface WhatsAppMessage {
+  id: string
+  conversation_id: string
+  tenant_id: string
+  direction: WhatsAppMessageDirection
+  sender_type: WhatsAppSenderType
+  content: string
+  ai_model: string | null
+  ai_confidence: number | null
+  ai_escalated: boolean
+  provider_message_id: string | null
   created_at: string
 }
 

@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Loading } from '@/components/ui/loading'
+import { useToast } from '@/hooks/use-toast'
 import type { EventInquiry } from '@/types'
 
 const statusLabels: Record<string, string> = {
@@ -33,6 +34,7 @@ export default function AdminEventsPage() {
   const [newStatus, setNewStatus] = useState('')
   const [adminNotes, setAdminNotes] = useState('')
   const [updating, setUpdating] = useState(false)
+  const { addToast } = useToast()
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -43,8 +45,10 @@ export default function AdminEventsPage() {
         setInquiries(data.data || [])
         setCount(data.count || 0)
       }
-    } catch {} finally { setLoading(false) }
-  }, [])
+    } catch {
+      addToast('Etkinlikler yüklenemedi', 'error')
+    } finally { setLoading(false) }
+  }, [addToast])
 
   useEffect(() => { load() }, [load])
 
@@ -65,10 +69,13 @@ export default function AdminEventsPage() {
         body: JSON.stringify({ status: newStatus, admin_notes: adminNotes }),
       })
       if (res.ok) {
+        addToast('Durum güncellendi', 'success')
         setShowModal(false)
         load()
+      } else {
+        addToast('Güncelleme başarısız', 'error')
       }
-    } catch {} finally { setUpdating(false) }
+    } catch { addToast('Bağlantı hatası', 'error') } finally { setUpdating(false) }
   }
 
   return (

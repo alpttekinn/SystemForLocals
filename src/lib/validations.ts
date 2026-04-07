@@ -116,6 +116,14 @@ export const updateBrandingSchema = z.object({
   hero_image_url: z.string().url().max(2000).optional().nullable(),
   hero_cta_text: z.string().max(50).optional(),
   footer_text: z.string().max(500).optional().nullable(),
+  // Content blocks (migration 00003)
+  announcement_bar_text: z.string().max(200).optional().nullable(),
+  about_story: z.string().max(5000).optional().nullable(),
+  venue_highlights: z.array(z.string().max(50)).max(14).optional().nullable(),
+  trust_stats: z.array(z.object({
+    label: z.string().max(100),
+    value: z.string().max(50),
+  })).max(4).optional().nullable(),
 })
 
 export type UpdateBrandingInput = z.infer<typeof updateBrandingSchema>

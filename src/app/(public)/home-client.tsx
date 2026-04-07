@@ -2,15 +2,17 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Phone, Star, Users, CalendarCheck, ChefHat, Coffee, Sparkles, ArrowRight, MessageCircle, Navigation, Car, Wifi, Baby, Music, TreePine, Utensils } from 'lucide-react'
+import { MapPin, Phone, Users, CalendarCheck, ChefHat, Sparkles, ArrowRight, MessageCircle, Navigation, Car, Wifi, Baby, Music, TreePine, Utensils, Heart, Shield, Umbrella, Wind, Package, Truck, Star } from 'lucide-react'
 import { useTenant } from '@/lib/tenant'
 import { Container } from '@/components/ui/container'
 import { Section, SectionHeader } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useReveal } from '@/hooks/use-reveal'
+import { useTrack } from '@/hooks/use-track'
 import type { MenuItem, GalleryItem, Testimonial, Campaign } from '@/types'
 import { formatPrice } from '@/lib/utils'
+import { ALL_VENUE_BADGE_OPTIONS } from '@/lib/constants'
 
 interface HomePageClientProps {
   featuredItems: MenuItem[]
@@ -19,14 +21,23 @@ interface HomePageClientProps {
   activeCampaigns: Campaign[]
 }
 
-const VENUE_BADGES = [
-  { icon: Car, label: 'Otopark' },
-  { icon: Wifi, label: 'Wi-Fi' },
-  { icon: Baby, label: 'Aile Dostu' },
-  { icon: Music, label: 'Canlı Müzik' },
-  { icon: TreePine, label: 'Açık Alan' },
-  { icon: Users, label: 'Etkinlik Alanı' },
-]
+// Icon map for venue badge keys — only covers icons available in lucide-react
+const VENUE_BADGE_ICON_MAP: Record<string, React.ReactNode> = {
+  parking:               <Car size={16} />,
+  wifi:                  <Wifi size={16} />,
+  family:                <Baby size={16} />,
+  live_music:            <Music size={16} />,
+  outdoor:               <TreePine size={16} />,
+  events:                <Users size={16} />,
+  terrace:               <Umbrella size={16} />,
+  air_conditioning:      <Wind size={16} />,
+  pet_friendly:          <Heart size={16} />,
+  disabled_access:       <Shield size={16} />,
+  takeaway:              <Package size={16} />,
+  delivery:              <Truck size={16} />,
+  valet:                 <Car size={16} />,
+  reservations_required: <CalendarCheck size={16} />,
+}
 
 export function HomePageClient({
   featuredItems,
@@ -40,6 +51,7 @@ export function HomePageClient({
   const ctaText = branding.hero_cta_text || 'Rezervasyon Yap'
 
   useReveal()
+  const { track } = useTrack()
 
   return (
     <>
@@ -79,7 +91,7 @@ export function HomePageClient({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up" style={{ animationDelay: '0.35s' }}>
             {features.reservations_enabled && (
               <Link href="/reservation">
-                <Button variant="cta" size="lg">
+                <Button variant="cta" size="lg" onClick={() => track('reservation_cta')}>
                   <CalendarCheck size={18} className="mr-2" />
                   {ctaText}
                 </Button>
@@ -95,7 +107,7 @@ export function HomePageClient({
 
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mt-12 animate-fade-up" style={{ animationDelay: '0.5s' }}>
             {contact.phone && (
-              <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm group">
+              <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm group" onClick={() => track('phone_click')}>
                 <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
                   <Phone size={14} />
                 </div>
@@ -103,7 +115,7 @@ export function HomePageClient({
               </a>
             )}
             {contact.whatsapp && (
-              <a href={`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm group">
+              <a href={`https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm group" onClick={() => track('whatsapp_click')}>
                 <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-emerald-500/30 transition-colors">
                   <MessageCircle size={14} />
                 </div>
@@ -111,7 +123,7 @@ export function HomePageClient({
               </a>
             )}
             {contact.maps_url && (
-              <a href={contact.maps_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm group">
+              <a href={contact.maps_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm group" onClick={() => track('directions_click')}>
                 <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
                   <Navigation size={14} />
                 </div>
@@ -131,40 +143,40 @@ export function HomePageClient({
       <div className="film-strip-divider" aria-hidden="true" />
 
       {/* ===== VENUE BADGES ===== */}
+      {(branding.venue_highlights?.length ?? 0) > 0 && (
       <Section compact className="bg-brand-surface">
         <Container>
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-5 reveal-stagger">
-            {VENUE_BADGES.map((badge) => (
-              <div key={badge.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-brand-primary/10 shadow-sm reveal">
-                <badge.icon size={16} className="text-brand-primary" />
-                <span className="text-xs font-medium text-brand-text">{badge.label}</span>
-              </div>
-            ))}
+            {branding.venue_highlights!.map((key) => {
+              const option = ALL_VENUE_BADGE_OPTIONS.find((o) => o.key === key)
+              if (!option) return null
+              return (
+                <div key={key} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-brand-primary/10 shadow-sm reveal">
+                  <span className="text-brand-primary">{VENUE_BADGE_ICON_MAP[key] ?? <Sparkles size={16} />}</span>
+                  <span className="text-xs font-medium text-brand-text">{option.label}</span>
+                </div>
+              )
+            })}
           </div>
         </Container>
       </Section>
+      )}
 
       {/* ===== CONCEPT / VALUE PROPOSITION ===== */}
+      {(branding.tagline || branding.short_description) && (
       <Section className="bg-brand-gradient-subtle">
         <Container>
-          <SectionHeader
-            title={branding.tagline || businessName}
-            subtitle={branding.short_description || ''}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto reveal-stagger">
-            {CONCEPT_CARDS.map((card) => (
-              <Card key={card.title} hover className="text-center reveal group">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-full flex items-center justify-center bg-brand-gradient text-white group-hover:scale-110 transition-transform duration-300">
-                  {card.icon}
-                </div>
-                <h3 className="font-serif text-lg font-semibold text-brand-text mb-2">{card.title}</h3>
-                <p className="text-sm text-brand-text-muted">{card.description}</p>
-              </Card>
-            ))}
+          <div className="max-w-2xl mx-auto text-center reveal">
+            {branding.tagline && (
+              <h2 className="text-section-heading text-brand-text mb-6">{branding.tagline}</h2>
+            )}
+            {branding.short_description && (
+              <p className="text-body-lg text-brand-text-muted leading-relaxed">{branding.short_description}</p>
+            )}
           </div>
         </Container>
       </Section>
+      )}
 
       {/* ===== FEATURED MENU ===== */}
       {featuredItems.length > 0 && (
@@ -269,21 +281,20 @@ export function HomePageClient({
       )}
 
       {/* ===== TRUST SIGNALS BAND ===== */}
-      <Section compact className="bg-brand-surface-alt">
-        <Container>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center reveal-stagger">
-            {TRUST_SIGNALS.map((signal) => (
-              <div key={signal.label} className="reveal">
-                <div className="w-10 h-10 mx-auto mb-2 rounded-full flex items-center justify-center bg-brand-primary/10 text-brand-primary">
-                  {signal.icon}
+      {(branding.trust_stats?.length ?? 0) > 0 && (
+        <Section compact className="bg-brand-surface-alt">
+          <Container>
+            <div className={`grid grid-cols-2 gap-6 text-center reveal-stagger ${branding.trust_stats!.length > 2 ? 'md:grid-cols-4' : 'md:grid-cols-2 max-w-md mx-auto'}`}>
+              {branding.trust_stats!.map((signal) => (
+                <div key={signal.label} className="reveal">
+                  <p className="text-2xl font-serif font-bold text-brand-text">{signal.value}</p>
+                  <p className="text-xs text-brand-text-muted mt-1">{signal.label}</p>
                 </div>
-                <p className="text-2xl font-serif font-bold text-brand-text">{signal.value}</p>
-                <p className="text-xs text-brand-text-muted mt-1">{signal.label}</p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </Section>
+              ))}
+            </div>
+          </Container>
+        </Section>
+      )}
 
       {/* ===== TESTIMONIALS ===== */}
       {testimonials.length > 0 && (
@@ -472,28 +483,3 @@ export function HomePageClient({
     </>
   )
 }
-
-const CONCEPT_CARDS = [
-  {
-    icon: <ChefHat size={24} />,
-    title: 'Özenli Lezzetler',
-    description: 'Taze malzemeler ve özenli hazırlıkla unutulmaz bir mutfak deneyimi.',
-  },
-  {
-    icon: <Coffee size={24} />,
-    title: 'Sıcak Atmosfer',
-    description: 'Her ziyaretinizde kendinizi evinizde hissedeceğiniz benzersiz bir ortam.',
-  },
-  {
-    icon: <Users size={24} />,
-    title: 'Özel Anlar',
-    description: 'Doğum günleri, buluşmalar ve kutlamalar için mükemmel bir mekan.',
-  },
-]
-
-const TRUST_SIGNALS = [
-  { icon: <Star size={20} />, value: '4.8', label: 'Ortalama Puan' },
-  { icon: <Users size={20} />, value: '2000+', label: 'Mutlu Misafir' },
-  { icon: <CalendarCheck size={20} />, value: '500+', label: 'Başarılı Etkinlik' },
-  { icon: <ChefHat size={20} />, value: '50+', label: 'Özel Tarif' },
-]

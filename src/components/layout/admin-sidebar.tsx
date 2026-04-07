@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, CalendarDays, PartyPopper, UtensilsCrossed,
   Images, Megaphone, HelpCircle, Clock, ShieldBan, Bell,
-  Settings, LogOut, ChevronLeft, Star,
+  Settings, LogOut, ChevronLeft, Star, MessageCircle, MessagesSquare,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ADMIN_NAV_LINKS, getActiveNavLinks } from '@/lib/constants'
@@ -14,6 +14,7 @@ import { useTenantOptional } from '@/lib/tenant'
 const ICON_MAP = {
   LayoutDashboard, CalendarDays, PartyPopper, UtensilsCrossed,
   Images, Megaphone, HelpCircle, Clock, ShieldBan, Bell, Settings, Star,
+  MessageCircle, MessagesSquare,
 } as const
 
 interface AdminSidebarProps {

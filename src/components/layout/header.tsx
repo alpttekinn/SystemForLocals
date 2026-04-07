@@ -8,6 +8,7 @@ import { Menu, X, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PUBLIC_NAV_LINKS, getActiveNavLinks } from '@/lib/constants'
 import { useTenant } from '@/lib/tenant'
+import { useTrack } from '@/hooks/use-track'
 import { Button } from '@/components/ui/button'
 import { Container } from '@/components/ui/container'
 
@@ -16,6 +17,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
   const tenant = useTenant()
+  const { track } = useTrack()
 
   const navLinks = getActiveNavLinks(
     PUBLIC_NAV_LINKS,
@@ -34,19 +36,21 @@ export function Header() {
 
   return (
     <>
-    {/* Announcement bar */}
+    {/* Announcement bar — only shown when configured */}
+    {tenant.branding.announcement_bar_text && (
     <div className="bg-brand-secondary text-white text-center py-1.5 text-xs font-medium tracking-wide">
       <Container className="flex items-center justify-center gap-3">
         {tenant.contact.phone && (
-          <a href={`tel:${tenant.contact.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+          <a href={`tel:${tenant.contact.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity" onClick={() => track('phone_click')}>
             <Phone size={12} />
             <span>{tenant.contact.phone}</span>
           </a>
         )}
         <span className="hidden sm:inline opacity-60">|</span>
-        <span className="hidden sm:inline">Her gün açık — Haftanın 7 günü hizmetinizdeyiz</span>
+        <span className="hidden sm:inline">{tenant.branding.announcement_bar_text}</span>
       </Container>
     </div>
+    )}
 
     <header className={cn(
       'sticky top-0 z-50 transition-all duration-300',
@@ -99,7 +103,7 @@ export function Header() {
           <div className="flex items-center gap-3">
             {showReservations && (
               <Link href="/reservation" className="hidden sm:block">
-                <Button variant="cta" size="sm">
+                <Button variant="cta" size="sm" onClick={() => track('reservation_cta')}>
                   {ctaText}
                 </Button>
               </Link>

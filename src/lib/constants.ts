@@ -84,6 +84,31 @@ export interface NavLink {
   featureKey?: string // maps to TenantFeatures boolean field
 }
 
+// --- Venue badge options ---
+// Keys stored in tenant_branding.venue_highlights (TEXT[]).
+// Icons are resolved in the UI component via VENUE_BADGE_ICON_MAP.
+
+export const ALL_VENUE_BADGE_OPTIONS = [
+  { key: 'parking',        label: 'Otopark' },
+  { key: 'wifi',           label: 'Wi-Fi' },
+  { key: 'family',         label: 'Aile Dostu' },
+  { key: 'live_music',     label: 'Canlı Müzik' },
+  { key: 'outdoor',        label: 'Açık Alan' },
+  { key: 'events',         label: 'Etkinlik Alanı' },
+  { key: 'terrace',        label: 'Teras' },
+  { key: 'air_conditioning', label: 'Klima' },
+  { key: 'pet_friendly',   label: 'Evcil Hayvan Dostu' },
+  { key: 'disabled_access', label: 'Engelli Erişimi' },
+  { key: 'takeaway',       label: 'Paket Servis' },
+  { key: 'delivery',       label: 'Teslimat' },
+  { key: 'valet',          label: 'Vale Servisi' },
+  { key: 'reservations_required', label: 'Rezervasyon Gerekli' },
+] as const
+
+export type VenueBadgeKey = typeof ALL_VENUE_BADGE_OPTIONS[number]['key']
+
+// --- Navigation ---
+
 export const PUBLIC_NAV_LINKS: NavLink[] = [
   { href: '/', label: 'Anasayfa' },
   { href: '/menu', label: 'Menü' },
@@ -103,6 +128,8 @@ export const ADMIN_NAV_LINKS: NavLink[] = [
   { href: '/admin/campaigns', label: 'Kampanyalar', icon: 'Megaphone', featureKey: 'campaigns_enabled' } as NavLink & { icon: string },
   { href: '/admin/faq', label: 'SSS', icon: 'HelpCircle', featureKey: 'faq_enabled' } as NavLink & { icon: string },
   { href: '/admin/testimonials', label: 'Değerlendirmeler', icon: 'Star', featureKey: 'testimonials_enabled' } as NavLink & { icon: string },
+  { href: '/admin/whatsapp', label: 'WhatsApp', icon: 'MessageCircle', featureKey: 'whatsapp_enabled' } as NavLink & { icon: string },
+  { href: '/admin/whatsapp/conversations', label: 'WA Görüşmeler', icon: 'MessagesSquare', featureKey: 'whatsapp_enabled' } as NavLink & { icon: string },
   { href: '/admin/hours', label: 'Çalışma Saatleri', icon: 'Clock' } as NavLink & { icon: string },
   { href: '/admin/blocked-slots', label: 'Bloklu Slotlar', icon: 'ShieldBan' } as NavLink & { icon: string },
   { href: '/admin/notifications', label: 'Bildirimler', icon: 'Bell' } as NavLink & { icon: string },

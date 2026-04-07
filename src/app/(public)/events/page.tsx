@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { FormField } from '@/components/ui/form-field'
 import { Cake, Briefcase, Heart, Utensils, Users, HelpCircle, CheckCircle, Phone } from 'lucide-react'
 import { useReveal } from '@/hooks/use-reveal'
+import { useTrack } from '@/hooks/use-track'
 
 const EVENT_TYPES = [
   { value: 'birthday', label: 'Doğum Günü' },
@@ -49,6 +50,7 @@ export default function EventsPage() {
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null)
 
   useReveal()
+  const { track } = useTrack()
 
   function update(field: string, value: string | number) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -76,6 +78,7 @@ export default function EventsPage() {
       const data = await res.json()
       if (res.ok) {
         setResult({ ok: true, message: 'Etkinlik talebiniz alındı! En kısa sürede sizinle iletişime geçeceğiz.' })
+        track('event_inquiry_submit', { event_type: form.event_type })
         setForm({
           guest_name: '', guest_phone: '', guest_email: '',
           event_type: 'birthday', estimated_guests: 10,

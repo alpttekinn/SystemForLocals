@@ -14,12 +14,14 @@ import { FormField } from '@/components/ui/form-field'
 import type { DayAvailability, TimeSlot } from '@/types'
 import { toISODateString } from '@/lib/utils'
 import { CalendarCheck, Clock, Users, CheckCircle } from 'lucide-react'
+import { useTrack } from '@/hooks/use-track'
 
 type BookingStep = 'date' | 'slot' | 'form' | 'confirm'
 
 export default function ReservationPage() {
   const tenant = useTenant()
   const businessName = tenant.tenant.name
+  const { track } = useTrack()
 
   // Booking state
   const [step, setStep] = useState<BookingStep>('date')
@@ -126,6 +128,7 @@ export default function ReservationPage() {
           id: data.id,
         })
         setStep('confirm')
+        track('reservation_cta', { date: selectedDate, time: selectedSlot.time })
       } else if (data.code === 'GROUP_REDIRECT') {
         setResult({ ok: false, message: data.error })
       } else if (data.details) {
@@ -394,9 +397,23 @@ export default function ReservationPage() {
             <h3 className="font-serif text-2xl font-semibold text-brand-text mb-2">
               Rezervasyonunuz Alındı!
             </h3>
-            <p className="text-sm text-brand-text-muted mb-6">
-              {businessName} sizi ağırlamaktan mutluluk duyacak.
-            </p>
+
+            {/* Status message */}
+            {rules.auto_confirm ? (
+              <p className="text-sm text-green-700 font-medium mb-1">
+                Rezervasyonunuz otomatik olarak <strong>onaylandı</strong>.
+              </p>
+            ) : (
+              <p className="text-sm text-amber-700 font-medium mb-1">
+                Rezervasyonunuz alındı — kısa sürede <strong>onaylanacak</strong> ve bilgilendirileceksiniz.
+              </p>
+            )}
+
+            {form.guest_email && (
+              <p className="text-xs text-brand-text-muted mb-4">
+                Onay e-postası <strong>{form.guest_email}</strong> adresine gönderildi.
+              </p>
+            )}
 
             <div className="bg-brand-gradient-subtle rounded-card p-5 mb-6 text-left space-y-3 border border-brand-primary/10">
               <div className="flex justify-between text-sm">
@@ -419,6 +436,15 @@ export default function ReservationPage() {
                 <span className="font-semibold text-brand-text">{form.guest_name}</span>
               </div>
             </div>
+
+            {tenant.contact.phone && (
+              <p className="text-xs text-brand-text-muted mb-5">
+                Sorularınız için:{' '}
+                <a href={`tel:${tenant.contact.phone}`} className="font-medium text-brand-primary hover:underline">
+                  {tenant.contact.phone}
+                </a>
+              </p>
+            )}
 
             <div className="flex flex-col gap-3">
               <Button variant="primary" onClick={reset}>

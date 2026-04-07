@@ -7,8 +7,10 @@ import { Badge } from '@/components/ui/badge'
 import {
   CalendarDays, Users, Coffee, Clock, MessageSquare, Bell,
   Image as ImageIcon, Megaphone, Mail, TrendingUp, ArrowRight, BarChart3,
+  Phone, MousePointerClick, MapPin,
 } from 'lucide-react'
 import { useTenantOptional } from '@/lib/tenant'
+import { useToast } from '@/hooks/use-toast'
 
 import type { Reservation } from '@/types'
 
@@ -17,11 +19,14 @@ interface DashboardStats {
   todayGuests: number
   pendingReservations: number
   totalReservations30d: number
+  weekReservations: number
   newEvents: number
   contacts30d: number
   menuItems: number
   galleryItems: number
   activeCampaigns: number
+  popularTimes: { time: string; count: number }[]
+  ctaEvents: Record<string, number>
 }
 
 export default function AdminDashboardPage() {
@@ -29,6 +34,7 @@ export default function AdminDashboardPage() {
   const businessName = tenant?.tenant.name || 'İşletme'
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [recentReservations, setRecentReservations] = useState<Reservation[]>([])
+  const { addToast } = useToast()
 
   const loadData = useCallback(async () => {
     try {
@@ -44,9 +50,9 @@ export default function AdminDashboardPage() {
         setRecentReservations(data.data || [])
       }
     } catch {
-      // Silently fail for dashboard
+      addToast('Veriler yüklenemedi', 'error')
     }
-  }, [])
+  }, [addToast])
 
   useEffect(() => { loadData() }, [loadData])
 
@@ -177,6 +183,107 @@ export default function AdminDashboardPage() {
           </Link>
         ))}
       </div>
+
+      {/* Analytics Row: Popular Times + CTA Events */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Popular Reservation Times */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Popüler Rezervasyon Saatleri</CardTitle>
+            <CardDescription>Son 30 gün</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {stats?.popularTimes && stats.popularTimes.length > 0 ? (
+              <div className="space-y-2">
+                {stats.popularTimes.map((slot) => {
+                  const max = stats.popularTimes[0].count
+                  return (
+                    <div key={slot.time} className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-charcoal-700 w-12">{slot.time}</span>
+                      <div className="flex-1 h-6 bg-charcoal-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-forest-500 rounded-full flex items-center justify-end pr-2"
+                          style={{ width: `${Math.max((slot.count / max) * 100, 15)}%` }}
+                        >
+                          <span className="text-[10px] text-white font-medium">{slot.count}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-charcoal-400 text-center py-4">Henüz veri yok</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* CTA / Lead Tracking */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Site Etkileşimleri</CardTitle>
+            <CardDescription>Son 30 gün — tıklamalar ve formlar</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {stats?.ctaEvents && Object.keys(stats.ctaEvents).length > 0 ? (
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { key: 'reservation_cta', label: 'Rezervasyon CTA', icon: CalendarDays, color: 'text-forest-600' },
+                  { key: 'phone_click', label: 'Telefon Tıklama', icon: Phone, color: 'text-blue-600' },
+                  { key: 'whatsapp_click', label: 'WhatsApp Tıklama', icon: MessageSquare, color: 'text-green-600' },
+                  { key: 'directions_click', label: 'Yol Tarifi', icon: MapPin, color: 'text-red-500' },
+                  { key: 'contact_form_submit', label: 'İletişim Formu', icon: Mail, color: 'text-indigo-600' },
+                  { key: 'event_inquiry_submit', label: 'Etkinlik Talebi', icon: MousePointerClick, color: 'text-orange-500' },
+                ].map((item) => {
+                  const count = stats.ctaEvents[item.key] || 0
+                  return (
+                    <div key={item.key} className="flex items-center gap-2 p-2 rounded-lg bg-charcoal-50">
+                      <item.icon size={16} className={item.color} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-charcoal-500 truncate">{item.label}</p>
+                        <p className="text-sm font-semibold text-charcoal-900">{count}</p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-charcoal-400 text-center py-4">Henüz etkileşim verisi yok</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Week summary card */}
+      {stats && (
+        <Card className="bg-gradient-to-r from-forest-50 to-gold-50 border-forest-200">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <TrendingUp size={20} className="text-forest-600" />
+                <div>
+                  <p className="text-sm font-medium text-charcoal-800">Bu Hafta</p>
+                  <p className="text-xs text-charcoal-500">Son 7 gün özet</p>
+                </div>
+              </div>
+              <div className="flex gap-6 text-center">
+                <div>
+                  <p className="text-lg font-bold text-charcoal-900">{stats.weekReservations}</p>
+                  <p className="text-xs text-charcoal-500">Rezervasyon</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-charcoal-900">{stats.newEvents}</p>
+                  <p className="text-xs text-charcoal-500">Yeni Talep</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-charcoal-900">{stats.contacts30d}</p>
+                  <p className="text-xs text-charcoal-500">İletişim</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Reservations */}
       <Card>

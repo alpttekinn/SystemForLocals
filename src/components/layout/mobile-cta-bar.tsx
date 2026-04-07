@@ -2,10 +2,13 @@
 
 import { Phone, MapPin, MessageCircle, CalendarCheck } from 'lucide-react'
 import { useTenant } from '@/lib/tenant'
+import { useTrack } from '@/hooks/use-track'
+import type { TrackableEvent } from '@/hooks/use-track'
 
 export function MobileCTABar() {
   const tenant = useTenant()
   const { contact, features } = tenant
+  const { track } = useTrack()
 
   const actions = [
     contact.phone && {
@@ -13,6 +16,7 @@ export function MobileCTABar() {
       icon: Phone,
       href: `tel:${contact.phone.replace(/\s/g, '')}`,
       className: 'text-green-400',
+      event: 'phone_click' as TrackableEvent,
     },
     contact.maps_url && {
       label: 'Yol Tarifi',
@@ -20,6 +24,7 @@ export function MobileCTABar() {
       href: contact.maps_url,
       target: '_blank',
       className: 'text-blue-400',
+      event: 'directions_click' as TrackableEvent,
     },
     contact.whatsapp && {
       label: 'WhatsApp',
@@ -27,12 +32,14 @@ export function MobileCTABar() {
       href: `https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}`,
       target: '_blank',
       className: 'text-emerald-400',
+      event: 'whatsapp_click' as TrackableEvent,
     },
     features.reservations_enabled && {
       label: 'Rezervasyon',
       icon: CalendarCheck,
       href: '/reservation',
       className: 'text-brand-secondary',
+      event: 'reservation_cta' as TrackableEvent,
     },
   ].filter(Boolean) as {
     label: string
@@ -40,6 +47,7 @@ export function MobileCTABar() {
     href: string
     target?: string
     className: string
+    event: TrackableEvent
   }[]
 
   if (actions.length === 0) return null
@@ -54,6 +62,7 @@ export function MobileCTABar() {
               href={action.href}
               target={action.target}
               rel={action.target === '_blank' ? 'noopener noreferrer' : undefined}
+              onClick={() => track(action.event)}
               className="flex flex-col items-center gap-1 py-1.5 px-3 rounded-lg hover:bg-white/5 transition-colors min-w-[60px]"
             >
               <action.icon size={20} className={action.className} />

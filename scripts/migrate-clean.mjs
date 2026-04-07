@@ -76,6 +76,9 @@ try {
   const migrations = [
     'supabase/migrations/00001_initial_schema.sql',
     'supabase/migrations/00002_saas_multi_tenant.sql',
+    'supabase/migrations/00003_branding_extensions.sql',
+    'supabase/migrations/00004_site_events.sql',
+    'supabase/migrations/00005_whatsapp_ai.sql',
     'supabase/seed.sql',
   ]
 

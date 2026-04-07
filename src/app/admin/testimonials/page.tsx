@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/modal'
 import { FormField } from '@/components/ui/form-field'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Loading } from '@/components/ui/loading'
+import { useToast } from '@/hooks/use-toast'
 import type { Testimonial } from '@/types'
 
 export default function AdminTestimonialsPage() {
@@ -26,6 +27,7 @@ export default function AdminTestimonialsPage() {
   const [isFeatured, setIsFeatured] = useState(false)
   const [isPublished, setIsPublished] = useState(true)
   const [sortOrder, setSortOrder] = useState(0)
+  const { addToast } = useToast()
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -35,8 +37,10 @@ export default function AdminTestimonialsPage() {
         const data = await res.json()
         setItems(data.items || [])
       }
-    } catch {} finally { setLoading(false) }
-  }, [])
+    } catch {
+      addToast('Yorumlar yüklenemedi', 'error')
+    } finally { setLoading(false) }
+  }, [addToast])
 
   useEffect(() => { load() }, [load])
 
@@ -64,32 +68,32 @@ export default function AdminTestimonialsPage() {
         is_published: isPublished,
         sort_order: sortOrder,
       }
-      if (editing) {
-        await fetch('/api/admin/testimonials', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: editing.id, ...payload }),
-        })
-      } else {
-        await fetch('/api/admin/testimonials', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-      }
+      const method = editing ? 'PATCH' : 'POST'
+      const body = editing ? { id: editing.id, ...payload } : payload
+      const res = await fetch('/api/admin/testimonials', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) { addToast('Kayıt başarısız', 'error'); return }
+      addToast('Yorum kaydedildi', 'success')
       setShowForm(false)
       load()
-    } catch {} finally { setSaving(false) }
+    } catch { addToast('Bağlantı hatası', 'error') } finally { setSaving(false) }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Silmek istediginize emin misiniz?')) return
-    await fetch('/api/admin/testimonials', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    load()
+    if (!confirm('Silmek istediğinize emin misiniz?')) return
+    try {
+      const res = await fetch('/api/admin/testimonials', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (!res.ok) { addToast('Silme başarısız', 'error'); return }
+      addToast('Yorum silindi', 'success')
+      load()
+    } catch { addToast('Bağlantı hatası', 'error') }
   }
 
   function renderStars(r: number | null) {

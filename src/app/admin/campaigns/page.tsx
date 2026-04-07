@@ -10,6 +10,8 @@ import { Modal } from '@/components/ui/modal'
 import { FormField } from '@/components/ui/form-field'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Loading } from '@/components/ui/loading'
+import { ImageUpload } from '@/components/ui/image-upload'
+import { useToast } from '@/hooks/use-toast'
 import { slugify } from '@/lib/utils'
 import type { Campaign } from '@/types'
 
@@ -28,6 +30,7 @@ export default function AdminCampaignsPage() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [isActive, setIsActive] = useState(true)
+  const { addToast } = useToast()
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -37,8 +40,10 @@ export default function AdminCampaignsPage() {
         const data = await res.json()
         setItems(data.items || [])
       }
-    } catch {} finally { setLoading(false) }
-  }, [])
+    } catch {
+      addToast('Kampanyalar yüklenemedi', 'error')
+    } finally { setLoading(false) }
+  }, [addToast])
 
   useEffect(() => { load() }, [load])
 
@@ -68,32 +73,32 @@ export default function AdminCampaignsPage() {
         end_date: endDate || null,
         is_active: isActive,
       }
-      if (editing) {
-        await fetch('/api/admin/campaigns', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: editing.id, ...payload }),
-        })
-      } else {
-        await fetch('/api/admin/campaigns', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-      }
+      const method = editing ? 'PATCH' : 'POST'
+      const body = editing ? { id: editing.id, ...payload } : payload
+      const res = await fetch('/api/admin/campaigns', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) { addToast('Kampanya kaydedilemedi', 'error'); return }
+      addToast('Kampanya kaydedildi', 'success')
       setShowForm(false)
       load()
-    } catch {} finally { setSaving(false) }
+    } catch { addToast('Bağlantı hatası', 'error') } finally { setSaving(false) }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Silmek istediginize emin misiniz?')) return
-    await fetch('/api/admin/campaigns', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    load()
+    if (!confirm('Silmek istediğinize emin misiniz?')) return
+    try {
+      const res = await fetch('/api/admin/campaigns', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (!res.ok) { addToast('Silme başarısız', 'error'); return }
+      addToast('Kampanya silindi', 'success')
+      load()
+    } catch { addToast('Bağlantı hatası', 'error') }
   }
 
   if (loading) return <Loading />
@@ -152,8 +157,14 @@ export default function AdminCampaignsPage() {
             <FormField label="Icerik">
               <Textarea value={content} onChange={(e) => setContent(e.target.value)} rows={4} />
             </FormField>
-            <FormField label="Gorsel URL">
-              <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+            <FormField label="Kampanya Görseli">
+              <ImageUpload
+                value={imageUrl}
+                onChange={setImageUrl}
+                folder="campaigns"
+                label="Görsel Yükle"
+                showUrlInput
+              />
             </FormField>
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Baslangic Tarihi">

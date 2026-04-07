@@ -7,7 +7,7 @@ import { Container } from '@/components/ui/container'
 import { Section } from '@/components/ui/section'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { MapPin, Phone, Clock, Users, Star, CalendarCheck, ChefHat, TreePine, Shield, ArrowRight } from 'lucide-react'
+import { MapPin, Phone, CalendarCheck, ArrowRight } from 'lucide-react'
 import { useReveal } from '@/hooks/use-reveal'
 
 export default function AboutPage() {
@@ -47,34 +47,23 @@ export default function AboutPage() {
             </div>
           )}
 
-          {/* Story */}
+          {/* Short description */}
           {branding.short_description && (
-            <div className="text-center mb-12 reveal">
+            <div className="text-center mb-10 reveal">
               <p className="text-lg text-brand-text leading-relaxed max-w-2xl mx-auto">
                 {branding.short_description}
               </p>
             </div>
           )}
 
-          {/* Why choose us */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 reveal-stagger">
-            {[
-              { icon: Star, title: 'Kaliteli Hizmet', desc: 'Her detayda özen ve profesyonellik ile hizmet veriyoruz.' },
-              { icon: ChefHat, title: 'Özenli Lezzetler', desc: 'Taze malzemelerle hazırlanan eşsiz bir mutfak deneyimi.' },
-              { icon: Users, title: 'Etkinlik Alanı', desc: 'Doğum günü, kurumsal ve özel davetler düzenleyebilirsiniz.' },
-              { icon: Clock, title: 'Her Gün Açık', desc: 'Haftanın 7 günü konuklarımızı ağırlıyoruz.' },
-              { icon: TreePine, title: 'Huzurlu Ortam', desc: 'Açık ve kapalı alanlarımızda keyifli vakit geçirin.' },
-              { icon: Shield, title: 'Güvenilir Hizmet', desc: 'Hijyen ve kalite standartlarına sıkı sıkıya bağlıyız.' },
-            ].map((item) => (
-              <Card key={item.title} className="text-center reveal group hover:-translate-y-1 transition-all duration-300">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-brand-gradient flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
-                  <item.icon size={20} />
-                </div>
-                <h3 className="font-serif text-sm font-semibold text-brand-text mb-1">{item.title}</h3>
-                <p className="text-xs text-brand-text-muted">{item.desc}</p>
-              </Card>
-            ))}
-          </div>
+          {/* About story — admin-configurable long-form text */}
+          {branding.about_story && (
+            <div className="mb-12 reveal">
+              <div className="prose prose-sm max-w-none text-brand-text leading-relaxed whitespace-pre-line">
+                {branding.about_story}
+              </div>
+            </div>
+          )}
 
           {/* Contact CTA */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 reveal-stagger">

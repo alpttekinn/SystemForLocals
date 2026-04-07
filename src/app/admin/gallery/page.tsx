@@ -9,6 +9,7 @@ import { Modal } from '@/components/ui/modal'
 import { FormField } from '@/components/ui/form-field'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Loading } from '@/components/ui/loading'
+import { useToast } from '@/hooks/use-toast'
 import type { GalleryItem } from '@/types'
 
 export default function AdminGalleryPage() {
@@ -27,6 +28,7 @@ export default function AdminGalleryPage() {
   const [isCover, setIsCover] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [sortOrder, setSortOrder] = useState(0)
+  const { addToast } = useToast()
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -36,8 +38,10 @@ export default function AdminGalleryPage() {
         const data = await res.json()
         setItems(data.items || [])
       }
-    } catch {} finally { setLoading(false) }
-  }, [])
+    } catch {
+      addToast('Galeri yüklenemedi', 'error')
+    } finally { setLoading(false) }
+  }, [addToast])
 
   useEffect(() => { load() }, [load])
 
@@ -59,13 +63,17 @@ export default function AdminGalleryPage() {
     try {
       const fd = new FormData()
       fd.append('file', file)
+      fd.append('folder', 'gallery')
       const res = await fetch('/api/upload', { method: 'POST', body: fd })
       if (res.ok) {
         const data = await res.json()
         setImageUrl(data.url)
         if (!altText) setAltText(file.name.replace(/\.[^.]+$/, ''))
+        addToast('Görsel yüklendi', 'success')
+      } else {
+        addToast('Yükleme başarısız', 'error')
       }
-    } catch {} finally { setUploading(false) }
+    } catch { addToast('Bağlantı hatası', 'error') } finally { setUploading(false) }
   }
 
   async function save() {
@@ -79,32 +87,32 @@ export default function AdminGalleryPage() {
         is_visible: isVisible,
         sort_order: sortOrder,
       }
-      if (editing) {
-        await fetch('/api/admin/gallery', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: editing.id, ...payload }),
-        })
-      } else {
-        await fetch('/api/admin/gallery', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-      }
+      const method = editing ? 'PATCH' : 'POST'
+      const body = editing ? { id: editing.id, ...payload } : payload
+      const res = await fetch('/api/admin/gallery', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) { addToast('Kayıt başarısız', 'error'); return }
+      addToast('Görsel kaydedildi', 'success')
       setShowForm(false)
       load()
-    } catch {} finally { setSaving(false) }
+    } catch { addToast('Bağlantı hatası', 'error') } finally { setSaving(false) }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Silmek istediginize emin misiniz?')) return
-    await fetch('/api/admin/gallery', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    load()
+    if (!confirm('Silmek istediğinize emin misiniz?')) return
+    try {
+      const res = await fetch('/api/admin/gallery', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (!res.ok) { addToast('Silme başarısız', 'error'); return }
+      addToast('Görsel silindi', 'success')
+      load()
+    } catch { addToast('Bağlantı hatası', 'error') }
   }
 
   if (loading) return <Loading />

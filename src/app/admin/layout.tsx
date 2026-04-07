@@ -21,6 +21,9 @@ export default function AdminLayout({
   const router = useRouter()
   const pathname = usePathname()
   const isLoginPage = pathname === '/admin/login'
+  const isPublicAuthPage = isLoginPage
+    || pathname === '/admin/forgot-password'
+    || pathname === '/admin/reset-password'
 
   useEffect(() => {
     const supabase = createClient()
@@ -28,7 +31,7 @@ export default function AdminLayout({
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession()
 
-      if (!session && !isLoginPage) {
+      if (!session && !isPublicAuthPage) {
         router.replace('/admin/login')
         return
       }
@@ -39,7 +42,7 @@ export default function AdminLayout({
       }
 
       // Load tenant config for admin panel
-      if (session && !isLoginPage) {
+      if (session && !isPublicAuthPage) {
         try {
           const res = await fetch('/api/tenant')
           if (res.ok) {
@@ -51,7 +54,7 @@ export default function AdminLayout({
         }
       }
 
-      setIsAuthenticated(!!session || isLoginPage)
+      setIsAuthenticated(!!session || isPublicAuthPage)
       setIsLoading(false)
     }
 
@@ -59,15 +62,15 @@ export default function AdminLayout({
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        if (!session && !isLoginPage) {
+        if (!session && !isPublicAuthPage) {
           router.replace('/admin/login')
         }
-        setIsAuthenticated(!!session || isLoginPage)
+        setIsAuthenticated(!!session || isPublicAuthPage)
       }
     )
 
     return () => subscription.unsubscribe()
-  }, [router, isLoginPage])
+  }, [router, isPublicAuthPage, isLoginPage])
 
   if (isLoading) {
     return <PageLoading />
@@ -77,8 +80,8 @@ export default function AdminLayout({
     return null
   }
 
-  // Login page gets a simple centered layout
-  if (isLoginPage) {
+  // Login / forgot-password / reset-password get a simple centered layout
+  if (isPublicAuthPage) {
     return (
       <ToastProvider>
         <div className="min-h-screen bg-cream-50 flex items-center justify-center p-4">

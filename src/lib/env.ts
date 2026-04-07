@@ -25,16 +25,19 @@ export const env = {
   },
   platform: {
     url: () => optional('NEXT_PUBLIC_PLATFORM_URL', 'http://localhost:3000')!,
-    defaultTenantSlug: () => optional('NEXT_PUBLIC_DEFAULT_TENANT_SLUG', 'yesilcam-cekmekoy')!,
+    defaultTenantSlug: () => optional('NEXT_PUBLIC_DEFAULT_TENANT_SLUG', 'demo')!,
   },
   email: {
     resendApiKey: () => optional('RESEND_API_KEY'),
-    fromEmail: () => optional('FROM_EMAIL', 'noreply@cafepanel.com')!,
+    fromEmail: () => optional('FROM_EMAIL', 'noreply@cafepanel.app')!,
     /** Admin email for receiving alerts (new reservations, event inquiries, etc.) */
     adminEmail: () => optional('ADMIN_NOTIFICATION_EMAIL'),
   },
   sms: {
     provider: () => optional('SMS_PROVIDER', 'mock')!,
+  },
+  gemini: {
+    apiKey: () => optional('GEMINI_API_KEY'),
   },
 } as const
 

@@ -11,15 +11,18 @@ import { Textarea } from '@/components/ui/textarea'
 import { FormField } from '@/components/ui/form-field'
 import { MapPin, Phone, Mail, MessageCircle, Navigation, Clock, Instagram } from 'lucide-react'
 import { useReveal } from '@/hooks/use-reveal'
+import { useTrack } from '@/hooks/use-track'
+import { DAYS_OF_WEEK } from '@/lib/constants'
 
 export default function ContactPage() {
   const tenant = useTenant()
-  const { contact } = tenant
+  const { contact, businessHours } = tenant
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null)
 
   useReveal()
+  const { track } = useTrack()
 
   function update(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -40,6 +43,7 @@ export default function ContactPage() {
       if (res.ok) {
         setResult({ ok: true, message: data.message || 'Mesajınız gönderildi!' })
         setForm({ name: '', email: '', phone: '', message: '' })
+        track('contact_form_submit')
       } else {
         setResult({ ok: false, message: data.error || 'Bir hata oluştu.' })
       }
@@ -59,6 +63,7 @@ export default function ContactPage() {
       href: `tel:${contact.phone.replace(/\s/g, '')}`,
       color: 'bg-green-50 text-green-700',
       iconColor: 'text-green-600',
+      trackEvent: 'phone_click' as const,
     },
     contact.whatsapp && {
       icon: MessageCircle,
@@ -68,6 +73,7 @@ export default function ContactPage() {
       target: '_blank',
       color: 'bg-emerald-50 text-emerald-700',
       iconColor: 'text-emerald-600',
+      trackEvent: 'whatsapp_click' as const,
     },
     contact.maps_url && {
       icon: Navigation,
@@ -77,6 +83,7 @@ export default function ContactPage() {
       target: '_blank',
       color: 'bg-blue-50 text-blue-700',
       iconColor: 'text-blue-600',
+      trackEvent: 'directions_click' as const,
     },
     contact.email && {
       icon: Mail,
@@ -85,8 +92,9 @@ export default function ContactPage() {
       href: `mailto:${contact.email}`,
       color: 'bg-purple-50 text-purple-700',
       iconColor: 'text-purple-600',
+      trackEvent: undefined,
     },
-  ].filter(Boolean) as { icon: typeof Phone; label: string; detail: string; href: string; target?: string; color: string; iconColor: string }[]
+  ].filter(Boolean) as { icon: typeof Phone; label: string; detail: string; href: string; target?: string; color: string; iconColor: string; trackEvent?: 'phone_click' | 'whatsapp_click' | 'directions_click' }[]
 
   return (
     <>
@@ -110,6 +118,7 @@ export default function ContactPage() {
                   href={action.href}
                   target={action.target}
                   rel={action.target === '_blank' ? 'noopener noreferrer' : undefined}
+                  onClick={() => action.trackEvent && track(action.trackEvent)}
                   className="flex flex-col items-center gap-2 p-4 rounded-card bg-white border border-brand-primary/5 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300 reveal"
                 >
                   <div className={`w-11 h-11 rounded-full flex items-center justify-center ${action.color}`}>
@@ -147,15 +156,29 @@ export default function ContactPage() {
                   </div>
                 )}
 
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0">
-                    <Clock size={16} className="text-brand-primary" />
+                {businessHours.length > 0 && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Clock size={16} className="text-brand-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-brand-text mb-2">Çalışma Saatleri</p>
+                      <div className="space-y-1.5">
+                        {businessHours.map((h) => (
+                          <div key={h.day_of_week} className="flex items-center gap-4 text-xs">
+                            <span className="w-24 shrink-0 text-brand-text-muted">
+                              {DAYS_OF_WEEK.find((d) => d.value === h.day_of_week)?.label ?? `Gün ${h.day_of_week}`}
+                            </span>
+                            {h.is_open
+                              ? <span className="font-medium text-brand-text">{h.open_time?.slice(0, 5)} – {h.close_time?.slice(0, 5)}</span>
+                              : <span className="text-red-500">Kapalı</span>
+                            }
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-brand-text">Çalışma Saatleri</p>
-                    <p className="text-xs text-brand-text-muted mt-0.5">Her gün 09:00 - 23:00</p>
-                  </div>
-                </div>
+                )}
 
                 {contact.instagram_url && (
                   <div className="flex items-start gap-3">

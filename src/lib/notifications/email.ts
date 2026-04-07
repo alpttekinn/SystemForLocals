@@ -18,7 +18,7 @@ interface EmailResult {
 }
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@yesilcamcekmekoy.com'
+const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@cafepanel.app'
 
 export async function sendEmail(params: SendEmailParams): Promise<EmailResult> {
   if (!RESEND_API_KEY) {

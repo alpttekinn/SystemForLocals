@@ -66,3 +66,15 @@ export {
   createContactSubmission,
   markContactRead,
 } from './contact'
+
+export {
+  getWhatsAppSettings,
+  getWhatsAppConversations,
+  getWhatsAppConversation,
+  createWhatsAppConversation,
+  updateConversationStatus,
+  incrementMessageCount,
+  getConversationMessages,
+  createWhatsAppMessage,
+  getWhatsAppStats,
+} from './whatsapp'

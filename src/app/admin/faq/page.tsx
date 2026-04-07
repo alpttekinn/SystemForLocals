@@ -10,6 +10,7 @@ import { FormField } from '@/components/ui/form-field'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Loading } from '@/components/ui/loading'
 import { Badge } from '@/components/ui/badge'
+import { useToast } from '@/hooks/use-toast'
 import type { FaqItem } from '@/types'
 
 export default function AdminFaqPage() {
@@ -23,6 +24,7 @@ export default function AdminFaqPage() {
   const [answer, setAnswer] = useState('')
   const [sortOrder, setSortOrder] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
+  const { addToast } = useToast()
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -32,8 +34,10 @@ export default function AdminFaqPage() {
         const data = await res.json()
         setItems(data.items || [])
       }
-    } catch {} finally { setLoading(false) }
-  }, [])
+    } catch {
+      addToast('SSS yüklenemedi', 'error')
+    } finally { setLoading(false) }
+  }, [addToast])
 
   useEffect(() => { load() }, [load])
 
@@ -50,32 +54,32 @@ export default function AdminFaqPage() {
     setSaving(true)
     try {
       const payload = { question, answer, sort_order: sortOrder, is_visible: isVisible }
-      if (editing) {
-        await fetch('/api/admin/faq', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: editing.id, ...payload }),
-        })
-      } else {
-        await fetch('/api/admin/faq', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-      }
+      const method = editing ? 'PATCH' : 'POST'
+      const body = editing ? { id: editing.id, ...payload } : payload
+      const res = await fetch('/api/admin/faq', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) { addToast('Kayıt başarısız', 'error'); return }
+      addToast('Soru kaydedildi', 'success')
       setShowForm(false)
       load()
-    } catch {} finally { setSaving(false) }
+    } catch { addToast('Bağlantı hatası', 'error') } finally { setSaving(false) }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Silmek istediginize emin misiniz?')) return
-    await fetch('/api/admin/faq', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    })
-    load()
+    if (!confirm('Silmek istediğinize emin misiniz?')) return
+    try {
+      const res = await fetch('/api/admin/faq', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (!res.ok) { addToast('Silme başarısız', 'error'); return }
+      addToast('Silindi', 'success')
+      load()
+    } catch { addToast('Bağlantı hatası', 'error') }
   }
 
   if (loading) return <Loading />

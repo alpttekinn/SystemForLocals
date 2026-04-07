@@ -2,29 +2,44 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { useToast } from '@/hooks/use-toast'
+import { ALL_VENUE_BADGE_OPTIONS } from '@/lib/constants'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
 import { FormField } from '@/components/ui/form-field'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { Loading } from '@/components/ui/loading'
 import { Modal } from '@/components/ui/modal'
 import type { TenantBranding, TenantContact, TenantSeo, TenantFeatures, BusinessHours, ReservationRules, SpecialDate, BlockedSlot } from '@/types'
 
-const DAY_NAMES = ['Pazartesi', 'Sali', 'Carsamba', 'Persembe', 'Cuma', 'Cumartesi', 'Pazar']
+const DAY_NAMES = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar']
 const TABS = [
   { key: 'branding', label: 'Marka' },
-  { key: 'contact', label: 'Iletisim' },
+  { key: 'contact', label: 'İletişim' },
   { key: 'seo', label: 'SEO' },
-  { key: 'features', label: 'Ozellikler' },
-  { key: 'hours', label: 'Calisma Saatleri' },
-  { key: 'rules', label: 'Rezervasyon Kurallari' },
+  { key: 'features', label: 'Özellikler' },
+  { key: 'hours', label: 'Çalışma Saatleri' },
+  { key: 'rules', label: 'Rezervasyon Kuralları' },
+] as const
+
+const THEME_PRESETS = [
+  { key: 'forest',   label: 'Orman',       swatch: ['#264d26', '#3d8b3d', '#e8f5e8'] },
+  { key: 'ocean',    label: 'Okyanus',     swatch: ['#1a3a4a', '#2d7a9a', '#e0f2f8'] },
+  { key: 'sunset',   label: 'Gün Batımı',  swatch: ['#7a2d1e', '#d45a3a', '#fff0eb'] },
+  { key: 'midnight', label: 'Gece',        swatch: ['#1a1a2e', '#4a4a8a', '#f0f0ff'] },
+  { key: 'rose',     label: 'Gül',         swatch: ['#6b2d4a', '#c45a7a', '#ffe0ec'] },
+  { key: 'amber',    label: 'Kehribar',    swatch: ['#7a4a1a', '#d4872a', '#fff8e0'] },
+  { key: 'slate',    label: 'Gri',         swatch: ['#2a3a4a', '#5a7a9a', '#e8f0f8'] },
+  { key: 'custom',   label: 'Özel',        swatch: ['#4a4a4a', '#8a8a8a', '#f0f0f0'] },
 ] as const
 
 type TabKey = typeof TABS[number]['key']
 
 export default function AdminSettingsPage() {
+  const { addToast } = useToast()
   const [tab, setTab] = useState<TabKey>('branding')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -78,33 +93,53 @@ export default function AdminSettingsPage() {
         setSpecialDates(h.specialDates || [])
         setBlockedSlots(h.blockedSlots || [])
       }
-    } catch {} finally { setLoading(false) }
-  }, [])
+    } catch {
+      addToast('Ayarlar yüklenemedi', 'error')
+    } finally { setLoading(false) }
+  }, [addToast])
 
   useEffect(() => { loadSettings() }, [loadSettings])
 
   async function saveSection(section: string, data: unknown) {
     setSaving(true)
     try {
-      await fetch('/api/admin/settings', {
+      const res = await fetch('/api/admin/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ section, data }),
       })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        addToast((err as { error?: string }).error || 'Kayıt başarısız', 'error')
+        return
+      }
+      addToast('Değişiklikler kaydedildi', 'success')
       loadSettings()
-    } catch {} finally { setSaving(false) }
+    } catch (err) {
+      console.error('[Settings] Save error:', err)
+      addToast('Bağlantı hatası', 'error')
+    } finally { setSaving(false) }
   }
 
   async function saveHoursAction(action: string, data: unknown) {
     setSaving(true)
     try {
-      await fetch('/api/admin/hours', {
+      const res = await fetch('/api/admin/hours', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, data }),
       })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        addToast((err as { error?: string }).error || 'Kayıt başarısız', 'error')
+        return
+      }
+      addToast('Değişiklikler kaydedildi', 'success')
       loadSettings()
-    } catch {} finally { setSaving(false) }
+    } catch (err) {
+      console.error('[Settings] Hours save error:', err)
+      addToast('Bağlantı hatası', 'error')
+    } finally { setSaving(false) }
   }
 
   function updateHour(idx: number, field: keyof BusinessHours, value: unknown) {
@@ -159,41 +194,193 @@ export default function AdminSettingsPage() {
       {/* Branding */}
       {tab === 'branding' && (
         <Card>
-          <CardHeader><CardTitle>Marka Ayarlari</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
+          <CardHeader><CardTitle>Marka Ayarları</CardTitle></CardHeader>
+          <CardContent className="space-y-6">
+            {/* Theme Preset */}
+            <div>
+              <p className="text-sm font-medium text-charcoal-700 mb-3">Renk Teması</p>
+              <div className="grid grid-cols-4 gap-2">
+                {THEME_PRESETS.map((preset) => (
+                  <button
+                    key={preset.key}
+                    type="button"
+                    onClick={() => setBranding({ ...branding, theme_preset: preset.key as TenantBranding['theme_preset'] })}
+                    className={`p-2 rounded-lg border-2 text-left transition-all ${
+                      branding.theme_preset === preset.key
+                        ? 'border-charcoal-700 shadow-sm'
+                        : 'border-charcoal-100 hover:border-charcoal-300'
+                    }`}
+                  >
+                    <div className="flex gap-1 mb-1.5">
+                      {preset.swatch.map((color, i) => (
+                        <div key={i} className="h-4 rounded-sm flex-1" style={{ backgroundColor: color }} />
+                      ))}
+                    </div>
+                    <span className="text-xs font-medium text-charcoal-700">{preset.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Hero text fields */}
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Slogan">
                 <Input value={branding.tagline || ''} onChange={(e) => setBranding({ ...branding, tagline: e.target.value })} />
               </FormField>
-              <FormField label="Kisa Aciklama">
+              <FormField label="Kısa Açıklama">
                 <Input value={branding.short_description || ''} onChange={(e) => setBranding({ ...branding, short_description: e.target.value })} />
               </FormField>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <FormField label="Hero Baslik">
+              <FormField label="Hero Başlık">
                 <Input value={branding.hero_title || ''} onChange={(e) => setBranding({ ...branding, hero_title: e.target.value })} />
               </FormField>
-              <FormField label="Hero Alt Baslik">
+              <FormField label="Hero Alt Başlık">
                 <Input value={branding.hero_subtitle || ''} onChange={(e) => setBranding({ ...branding, hero_subtitle: e.target.value })} />
               </FormField>
             </div>
             <FormField label="Hero CTA Metni">
               <Input value={branding.hero_cta_text || ''} onChange={(e) => setBranding({ ...branding, hero_cta_text: e.target.value })} />
             </FormField>
-            <FormField label="Logo URL">
-              <Input value={branding.logo_url || ''} onChange={(e) => setBranding({ ...branding, logo_url: e.target.value })} />
+            <FormField label="Logo">
+              <ImageUpload
+                value={branding.logo_url || ''}
+                onChange={(url) => setBranding({ ...branding, logo_url: url })}
+                folder="brand"
+                label="Logo Yükle"
+                showUrlInput
+              />
             </FormField>
-            <FormField label="Hero Gorsel URL">
-              <Input value={branding.hero_image_url || ''} onChange={(e) => setBranding({ ...branding, hero_image_url: e.target.value })} />
+            <FormField label="Hero Görseli">
+              <ImageUpload
+                value={branding.hero_image_url || ''}
+                onChange={(url) => setBranding({ ...branding, hero_image_url: url })}
+                folder="hero"
+                label="Hero Görsel Yükle"
+                showUrlInput
+              />
             </FormField>
+
+            {/* Announcement bar */}
+            <FormField label="Duyuru Çubuğu Metni" description="Boş bırakılırsa başlık çubuğu gizlenir.">
+              <Input
+                value={branding.announcement_bar_text || ''}
+                onChange={(e) => setBranding({ ...branding, announcement_bar_text: e.target.value || null })}
+                placeholder="Her gün açık — Haftanın 7 günü hizmetinizdeyiz"
+              />
+            </FormField>
+
+            {/* About story */}
+            <FormField label="Hakkımızda Hikayesi" description="Hakkımızda sayfasında gösterilir. Boş bırakılırsa bölüm gizlenir.">
+              <Textarea
+                value={branding.about_story || ''}
+                onChange={(e) => setBranding({ ...branding, about_story: e.target.value || null })}
+                rows={5}
+                placeholder="İşletmenizin hikayesini, değerlerinizi ve misyonunuzu buraya yazın..."
+              />
+            </FormField>
+
+            {/* Footer text */}
             <FormField label="Footer Metni">
               <Textarea value={branding.footer_text || ''} onChange={(e) => setBranding({ ...branding, footer_text: e.target.value })} rows={2} />
             </FormField>
+
+            {/* Venue highlights */}
+            <div>
+              <p className="text-sm font-medium text-charcoal-700 mb-1">Mekan Özellikleri</p>
+              <p className="text-xs text-charcoal-400 mb-3">Seçili özellikler ana sayfada rozet olarak gösterilir. Hiçbiri seçilmezse bölüm gizlenir.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {ALL_VENUE_BADGE_OPTIONS.map(({ key, label }) => {
+                  const checked = (branding.venue_highlights || []).includes(key)
+                  return (
+                    <label key={key} className="flex items-center gap-2 text-sm p-2 rounded-lg border border-charcoal-100 hover:bg-charcoal-50/50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => {
+                          const current = branding.venue_highlights || []
+                          const next = e.target.checked ? [...current, key] : current.filter((k) => k !== key)
+                          setBranding({ ...branding, venue_highlights: next })
+                        }}
+                        className="rounded"
+                      />
+                      {label}
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Trust stats */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm font-medium text-charcoal-700">Ana Sayfa İstatistikleri</p>
+                {(branding.trust_stats || []).length < 4 && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setBranding({ ...branding, trust_stats: [...(branding.trust_stats || []), { value: '', label: '' }] })}
+                  >
+                    + Ekle
+                  </Button>
+                )}
+              </div>
+              <p className="text-xs text-charcoal-400 mb-3">Maks. 4 istatistik. Hiçbiri girilmezse bölüm gizlenir.</p>
+              {(branding.trust_stats || []).length === 0 ? (
+                <p className="text-xs text-charcoal-300 italic">Henüz istatistik eklenmedi.</p>
+              ) : (
+                <div className="space-y-2">
+                  {(branding.trust_stats || []).map((stat, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <Input
+                        value={stat.value}
+                        onChange={(e) => {
+                          const next = [...(branding.trust_stats || [])]
+                          next[i] = { ...next[i], value: e.target.value }
+                          setBranding({ ...branding, trust_stats: next })
+                        }}
+                        placeholder="500+"
+                        className="w-28"
+                      />
+                      <Input
+                        value={stat.label}
+                        onChange={(e) => {
+                          const next = [...(branding.trust_stats || [])]
+                          next[i] = { ...next[i], label: e.target.value }
+                          setBranding({ ...branding, trust_stats: next })
+                        }}
+                        placeholder="Mutlu Misafir"
+                        className="flex-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setBranding({ ...branding, trust_stats: (branding.trust_stats || []).filter((_, idx) => idx !== i) })}
+                        className="p-1.5 text-charcoal-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                        aria-label="Sil"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Button variant="primary" onClick={() => saveSection('branding', {
-              tagline: branding.tagline, short_description: branding.short_description,
-              hero_title: branding.hero_title, hero_subtitle: branding.hero_subtitle,
-              hero_cta_text: branding.hero_cta_text, logo_url: branding.logo_url,
-              hero_image_url: branding.hero_image_url, footer_text: branding.footer_text,
+              tagline: branding.tagline || null,
+              short_description: branding.short_description || null,
+              hero_title: branding.hero_title || null,
+              hero_subtitle: branding.hero_subtitle || null,
+              hero_cta_text: branding.hero_cta_text || undefined,
+              logo_url: branding.logo_url || null,
+              hero_image_url: branding.hero_image_url || null,
+              footer_text: branding.footer_text || null,
+              theme_preset: branding.theme_preset,
+              announcement_bar_text: branding.announcement_bar_text ?? null,
+              about_story: branding.about_story ?? null,
+              venue_highlights: branding.venue_highlights ?? null,
+              trust_stats: branding.trust_stats ?? null,
             })} disabled={saving}>
               {saving ? 'Kaydediliyor...' : 'Kaydet'}
             </Button>
@@ -204,7 +391,7 @@ export default function AdminSettingsPage() {
       {/* Contact */}
       {tab === 'contact' && (
         <Card>
-          <CardHeader><CardTitle>Iletisim Bilgileri</CardTitle></CardHeader>
+          <CardHeader><CardTitle>İletişim Bilgileri</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Telefon">
@@ -257,7 +444,7 @@ export default function AdminSettingsPage() {
       {/* SEO */}
       {tab === 'seo' && (
         <Card>
-          <CardHeader><CardTitle>SEO Ayarlari</CardTitle></CardHeader>
+          <CardHeader><CardTitle>SEO Ayarları</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <FormField label="Meta Baslik Sablonu">
               <Input value={seo.meta_title_template || ''} onChange={(e) => setSeo({ ...seo, meta_title_template: e.target.value })} placeholder="%s | Restoran Adi" />
@@ -298,7 +485,7 @@ export default function AdminSettingsPage() {
       {/* Features */}
       {tab === 'features' && (
         <Card>
-          <CardHeader><CardTitle>Ozellik Ayarlari</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Özellik Ayarları</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {([
               ['reservations_enabled', 'Rezervasyonlar'],
@@ -307,7 +494,7 @@ export default function AdminSettingsPage() {
               ['campaigns_enabled', 'Kampanyalar'],
               ['faq_enabled', 'SSS'],
               ['testimonials_enabled', 'Yorumlar'],
-              ['contact_form_enabled', 'Iletisim Formu'],
+              ['contact_form_enabled', 'İletişim Formu'],
               ['email_notifications_enabled', 'E-posta Bildirimleri'],
             ] as [keyof TenantFeatures, string][]).map(([key, label]) => (
               <label key={key} className="flex items-center justify-between p-3 rounded-lg border border-charcoal-100 hover:bg-charcoal-50/50 cursor-pointer">
@@ -340,17 +527,17 @@ export default function AdminSettingsPage() {
       {tab === 'hours' && (
         <div className="space-y-6">
           <Card>
-            <CardHeader><CardTitle>Calisma Saatleri</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Çalışma Saatleri</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               {hours.length === 0 ? (
-                <p className="text-sm text-charcoal-400">Saat verisi bulunamadi.</p>
+                <p className="text-sm text-charcoal-400">Saat verisi bulunamadı.</p>
               ) : (
                 hours.sort((a, b) => a.day_of_week - b.day_of_week).map((h, idx) => (
                   <div key={h.id || idx} className="flex items-center gap-3 text-sm">
                     <span className="w-24 font-medium text-charcoal-800">{DAY_NAMES[h.day_of_week] || `Gun ${h.day_of_week}`}</span>
                     <label className="flex items-center gap-1">
                       <input type="checkbox" checked={h.is_open} onChange={(e) => updateHour(idx, 'is_open', e.target.checked)} className="rounded" />
-                      Acik
+                      Açık
                     </label>
                     {h.is_open && (
                       <>
@@ -383,13 +570,13 @@ export default function AdminSettingsPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Ozel Gunler</CardTitle>
+                <CardTitle>Özel Günler</CardTitle>
                 <Button variant="secondary" size="sm" onClick={() => setShowSpecialForm(true)}>Ekle</Button>
               </div>
             </CardHeader>
             <CardContent>
               {specialDates.length === 0 ? (
-                <p className="text-sm text-charcoal-400">Ozel gun tanimlanmamis.</p>
+                <p className="text-sm text-charcoal-400">Özel gün tanımlanmamış.</p>
               ) : (
                 <div className="space-y-2">
                   {specialDates.map((sd) => (
@@ -397,7 +584,7 @@ export default function AdminSettingsPage() {
                       <div>
                         <span className="font-medium">{sd.date}</span>
                         {sd.reason && <span className="text-charcoal-500 ml-2">({sd.reason})</span>}
-                        {sd.is_closed ? <Badge variant="error" className="ml-2">Kapali</Badge> : <Badge variant="success" className="ml-2">Acik {sd.open_time?.slice(0,5)}-{sd.close_time?.slice(0,5)}</Badge>}
+                        {sd.is_closed ? <Badge variant="error" className="ml-2">Kapalı</Badge> : <Badge variant="success" className="ml-2">Açık {sd.open_time?.slice(0,5)}-{sd.close_time?.slice(0,5)}</Badge>}
                       </div>
                       <Button variant="ghost" size="sm" onClick={() => saveHoursAction('delete_special_date', { id: sd.id })}>Sil</Button>
                     </div>
@@ -440,7 +627,7 @@ export default function AdminSettingsPage() {
       {/* Reservation Rules */}
       {tab === 'rules' && (
         <Card>
-          <CardHeader><CardTitle>Rezervasyon Kurallari</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Rezervasyon Kuralları</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Slot Suresi (dk)">
@@ -495,7 +682,7 @@ export default function AdminSettingsPage() {
 
       {/* Special Date Modal */}
       {showSpecialForm && (
-        <Modal open={true} onClose={() => setShowSpecialForm(false)} title="Ozel Gun Ekle">
+        <Modal open={true} onClose={() => setShowSpecialForm(false)} title="Özel Gün Ekle">
           <div className="space-y-4">
             <FormField label="Tarih" required>
               <Input type="date" value={sdDate} onChange={(e) => setSdDate(e.target.value)} />
@@ -506,10 +693,10 @@ export default function AdminSettingsPage() {
             </label>
             {!sdClosed && (
               <div className="grid grid-cols-2 gap-4">
-                <FormField label="Acilis">
+                <FormField label="Açılış">
                   <Input type="time" value={sdOpen} onChange={(e) => setSdOpen(e.target.value)} />
                 </FormField>
-                <FormField label="Kapanis">
+                <FormField label="Kapanış">
                   <Input type="time" value={sdClose} onChange={(e) => setSdClose(e.target.value)} />
                 </FormField>
               </div>
@@ -544,10 +731,10 @@ export default function AdminSettingsPage() {
             </FormField>
             {bsType === 'time_range' && (
               <div className="grid grid-cols-2 gap-4">
-                <FormField label="Baslangic">
+                <FormField label="Saat Başlangıcı">
                   <Input type="time" value={bsStart} onChange={(e) => setBsStart(e.target.value)} />
                 </FormField>
-                <FormField label="Bitis">
+                <FormField label="Saat Bittişi">
                   <Input type="time" value={bsEnd} onChange={(e) => setBsEnd(e.target.value)} />
                 </FormField>
               </div>

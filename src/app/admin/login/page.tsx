@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,15 +48,15 @@ export default function AdminLoginPage() {
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
         <div className="text-gold-500 text-sm tracking-[0.5em] mb-2">★ ★ ★</div>
-        <CardTitle className="text-2xl font-serif">Yeşilçam Çekmeköy</CardTitle>
-        <CardDescription>Yönetim paneline giriş yapın</CardDescription>
+        <CardTitle className="text-2xl font-serif">Yönetim Paneli</CardTitle>
+        <CardDescription>Hesabınızla giriş yapın</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <FormField label="E-posta" error={error ? ' ' : undefined}>
             <Input
               type="email"
-              placeholder="admin@yesilcam.com"
+              placeholder="ornek@isletme.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -86,6 +87,12 @@ export default function AdminLoginPage() {
           >
             Giriş Yap
           </Button>
+
+          <div className="text-center">
+            <Link href="/admin/forgot-password" className="text-sm text-charcoal-500 hover:text-charcoal-700">
+              Şifremi unuttum
+            </Link>
+          </div>
         </form>
       </CardContent>
     </Card>

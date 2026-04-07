@@ -125,8 +125,11 @@ Security headers are configured in `vercel.json`:
 
 Ensure the following in your Supabase project:
 
-1. **Auth → URL Configuration**: Set Site URL to your platform URL
-2. **Auth → URL Configuration**: Add redirect URLs for admin login
-3. **Storage**: Create an `uploads` bucket (public) if using image uploads
-4. **RLS**: Verify all table RLS policies are active
+1. **Auth → URL Configuration**: Set Site URL to your platform URL (e.g. `https://cafepanel.com`)
+2. **Auth → URL Configuration**: Add redirect URLs:
+   - `https://yourdomain.com/admin/reset-password` (for password recovery)
+   - `https://yourdomain.com/**` (wildcard, covers all admin auth flows)
+3. **Storage**: Create a `tenant-assets` bucket with **public** access (for image uploads)
+4. **RLS**: Verify all table RLS policies are active (migrations enable them automatically)
 5. **Edge Functions**: Not required — all logic runs in Next.js API routes
+6. **Database**: Run migrations in order via `node scripts/migrate.mjs` (requires `DATABASE_URL` in `.env.local`)

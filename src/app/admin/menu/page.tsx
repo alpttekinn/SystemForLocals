@@ -8,9 +8,11 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Modal } from '@/components/ui/modal'
 import { FormField } from '@/components/ui/form-field'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Loading } from '@/components/ui/loading'
 import { Select } from '@/components/ui/select'
+import { useToast } from '@/hooks/use-toast'
 import { formatPrice } from '@/lib/utils'
 import type { MenuCategory, MenuItem } from '@/types'
 
@@ -23,6 +25,7 @@ export default function AdminMenuPage() {
   const [editMode, setEditMode] = useState<EditMode>(null)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const { addToast } = useToast()
 
   // Category form
   const [catName, setCatName] = useState('')
@@ -35,6 +38,7 @@ export default function AdminMenuPage() {
   const [itemDesc, setItemDesc] = useState('')
   const [itemPrice, setItemPrice] = useState('')
   const [itemCategoryId, setItemCategoryId] = useState('')
+  const [itemImageUrl, setItemImageUrl] = useState('')
   const [itemSortOrder, setItemSortOrder] = useState(0)
   const [itemVisible, setItemVisible] = useState(true)
   const [itemFeatured, setItemFeatured] = useState(false)
@@ -48,8 +52,10 @@ export default function AdminMenuPage() {
         setCategories(data.categories || [])
         setItems(data.items || [])
       }
-    } catch {} finally { setLoading(false) }
-  }, [])
+    } catch {
+      addToast('Menü yüklenemedi', 'error')
+    } finally { setLoading(false) }
+  }, [addToast])
 
   useEffect(() => { load() }, [load])
 
@@ -66,6 +72,7 @@ export default function AdminMenuPage() {
     setItemDesc(item?.description || '')
     setItemPrice(item ? String(item.price) : '')
     setItemCategoryId(item?.category_id || categories[0]?.id || '')
+    setItemImageUrl(item?.image_url || '')
     setItemSortOrder(item?.sort_order || 0)
     setItemVisible(item?.is_visible ?? true)
     setItemFeatured(item?.is_featured ?? false)
@@ -76,22 +83,20 @@ export default function AdminMenuPage() {
     setSaving(true)
     try {
       const payload = { name: catName, slug: catSlug, sort_order: catSortOrder, is_visible: catVisible }
-      if (editMode?.type === 'category' && editMode.item) {
-        await fetch('/api/admin/menu', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'category', id: editMode.item.id, data: payload }),
-        })
-      } else {
-        await fetch('/api/admin/menu', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'category', data: payload }),
-        })
-      }
+      const method = editMode?.type === 'category' && editMode.item ? 'PATCH' : 'POST'
+      const body = editMode?.type === 'category' && editMode.item
+        ? { type: 'category', id: editMode.item.id, data: payload }
+        : { type: 'category', data: payload }
+      const res = await fetch('/api/admin/menu', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) { addToast('Kategori kaydedilemedi', 'error'); return }
+      addToast('Kategori kaydedildi', 'success')
       setEditMode(null)
       load()
-    } catch {} finally { setSaving(false) }
+    } catch { addToast('Bağlantı hatası', 'error') } finally { setSaving(false) }
   }
 
   async function saveItem() {
@@ -102,39 +107,40 @@ export default function AdminMenuPage() {
         description: itemDesc || null,
         price: parseFloat(itemPrice) || 0,
         category_id: itemCategoryId,
+        image_url: itemImageUrl || null,
         sort_order: itemSortOrder,
         is_visible: itemVisible,
         is_featured: itemFeatured,
       }
-      if (editMode?.type === 'item' && editMode.item) {
-        await fetch('/api/admin/menu', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'item', id: editMode.item.id, data: payload }),
-        })
-      } else {
-        await fetch('/api/admin/menu', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'item', data: payload }),
-        })
-      }
+      const method = editMode?.type === 'item' && editMode.item ? 'PATCH' : 'POST'
+      const body = editMode?.type === 'item' && editMode.item
+        ? { type: 'item', id: editMode.item.id, data: payload }
+        : { type: 'item', data: payload }
+      const res = await fetch('/api/admin/menu', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) { addToast('Ürün kaydedilemedi', 'error'); return }
+      addToast('Ürün kaydedildi', 'success')
       setEditMode(null)
       load()
-    } catch {} finally { setSaving(false) }
+    } catch { addToast('Bağlantı hatası', 'error') } finally { setSaving(false) }
   }
 
   async function handleDelete(type: 'category' | 'item', id: string) {
-    if (!confirm('Silmek istediginize emin misiniz?')) return
+    if (!confirm('Silmek istediğinize emin misiniz?')) return
     setDeleting(id)
     try {
-      await fetch('/api/admin/menu', {
+      const res = await fetch('/api/admin/menu', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, id }),
       })
+      if (!res.ok) { addToast('Silme başarısız', 'error'); return }
+      addToast('Silindi', 'success')
       load()
-    } catch {} finally { setDeleting(null) }
+    } catch { addToast('Bağlantı hatası', 'error') } finally { setDeleting(null) }
   }
 
   if (loading) return <Loading />
@@ -240,8 +246,16 @@ export default function AdminMenuPage() {
                 />
               </FormField>
             </div>
-            <FormField label="Aciklama">
+            <FormField label="Açıklama">
               <Textarea value={itemDesc} onChange={(e) => setItemDesc(e.target.value)} rows={2} />
+            </FormField>
+            <FormField label="Ürün Görseli">
+              <ImageUpload
+                value={itemImageUrl}
+                onChange={setItemImageUrl}
+                folder="menu"
+                label="Görsel Yükle"
+              />
             </FormField>
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Fiyat (TL)" required>

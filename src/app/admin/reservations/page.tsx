@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/modal'
 import { Textarea } from '@/components/ui/textarea'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Loading } from '@/components/ui/loading'
+import { useToast } from '@/hooks/use-toast'
 import type { Reservation } from '@/types'
 
 const STATUS_OPTIONS = [
@@ -53,6 +54,7 @@ export default function AdminReservationsPage() {
   const [showModal, setShowModal] = useState(false)
   const [updating, setUpdating] = useState(false)
   const [statusNotes, setStatusNotes] = useState('')
+  const { addToast } = useToast()
 
   const loadReservations = useCallback(async () => {
     setLoading(true)
@@ -69,11 +71,11 @@ export default function AdminReservationsPage() {
         setCount(data.count || 0)
       }
     } catch {
-      // Silently fail
+      addToast('Rezervasyonlar yüklenemedi', 'error')
     } finally {
       setLoading(false)
     }
-  }, [filterDate, filterStatus])
+  }, [filterDate, filterStatus, addToast])
 
   useEffect(() => { loadReservations() }, [loadReservations])
 
@@ -87,12 +89,15 @@ export default function AdminReservationsPage() {
         body: JSON.stringify({ status: newStatus, admin_notes: statusNotes || undefined }),
       })
       if (res.ok) {
+        addToast('Durum güncellendi', 'success')
         setShowModal(false)
         setStatusNotes('')
         loadReservations()
+      } else {
+        addToast('Güncelleme başarısız', 'error')
       }
     } catch {
-      // Fail silently
+      addToast('Bağlantı hatası', 'error')
     } finally {
       setUpdating(false)
     }

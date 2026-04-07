@@ -1,4 +1,4 @@
-import type { TenantConfig, Tenant, TenantBranding, TenantContact, TenantSeo, TenantFeatures } from '@/types'
+import type { TenantConfig, Tenant, TenantBranding, TenantContact, TenantSeo, TenantFeatures, BusinessHours } from '@/types'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 /**
@@ -96,11 +96,12 @@ export async function resolveTenantConfig(slug: string): Promise<TenantConfig | 
   if (tenantErr || !tenant) return null
 
   // Load all config tables in parallel
-  const [brandingRes, contactRes, seoRes, featuresRes] = await Promise.all([
+  const [brandingRes, contactRes, seoRes, featuresRes, hoursRes] = await Promise.all([
     supabase.from('tenant_branding').select('*').eq('tenant_id', tenant.id).single<TenantBranding>(),
     supabase.from('tenant_contact').select('*').eq('tenant_id', tenant.id).single<TenantContact>(),
     supabase.from('tenant_seo').select('*').eq('tenant_id', tenant.id).single<TenantSeo>(),
     supabase.from('tenant_features').select('*').eq('tenant_id', tenant.id).single<TenantFeatures>(),
+    supabase.from('business_hours').select('*').eq('tenant_id', tenant.id).order('day_of_week'),
   ])
 
   // All config rows should exist (created on tenant setup)
@@ -114,6 +115,7 @@ export async function resolveTenantConfig(slug: string): Promise<TenantConfig | 
     contact: contactRes.data,
     seo: seoRes.data,
     features: featuresRes.data,
+    businessHours: (hoursRes.data as BusinessHours[]) || [],
   }
 }
 
