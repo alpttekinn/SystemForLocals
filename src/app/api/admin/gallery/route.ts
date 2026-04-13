@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
   const supabase = createAdminClient()
   const { data } = await supabase
-    .from('gallery')
+    .from('gallery_items')
     .select('*')
     .eq('tenant_id', auth.tenantId)
     .order('sort_order')
@@ -44,14 +44,14 @@ export async function POST(request: NextRequest) {
   // If is_cover, unset other covers first
   if (parsed.data.is_cover) {
     await supabase
-      .from('gallery')
+      .from('gallery_items')
       .update({ is_cover: false })
       .eq('tenant_id', auth.tenantId)
       .eq('is_cover', true)
   }
 
   const { data, error } = await supabase
-    .from('gallery')
+    .from('gallery_items')
     .insert({ tenant_id: auth.tenantId, ...parsed.data })
     .select('id')
     .single()
@@ -90,14 +90,14 @@ export async function PATCH(request: NextRequest) {
   // If setting is_cover, unset other covers
   if (parsed.data.is_cover) {
     await supabase
-      .from('gallery')
+      .from('gallery_items')
       .update({ is_cover: false })
       .eq('tenant_id', auth.tenantId)
       .eq('is_cover', true)
   }
 
   const { error } = await supabase
-    .from('gallery')
+    .from('gallery_items')
     .update(parsed.data)
     .eq('id', id)
     .eq('tenant_id', auth.tenantId)
@@ -128,7 +128,7 @@ export async function DELETE(request: NextRequest) {
 
   const supabase = createAdminClient()
   const { error } = await supabase
-    .from('gallery')
+    .from('gallery_items')
     .delete()
     .eq('id', id)
     .eq('tenant_id', auth.tenantId)
